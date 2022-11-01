@@ -1,0 +1,42 @@
+{
+  "logs": [
+    {
+      "name": "root",
+      "level": "debug",
+      "appenders": [
+        {
+          "type": 0,
+          "level": "debug",
+          "format": "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T%p%T%c%T%f%l{:}%T%m%n"
+        },
+        {
+          "type": 1,
+          "level": "debug",
+          "format": "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T%p%T%c%T%f%l{:}%T%m%n",
+          "filepath": "../resource/log_output/root.txt"
+        }
+      ]
+    },
+    {
+      "name": "system",
+      "level": "debug",
+      "appenders": [
+        {
+          "type": 0,
+          "level": "debug",
+          "format": "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T%p%T%c%T%f%l{:}%T%m%n"
+        },
+        {
+          "type": 1,
+          "level": "debug",
+          "format": "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T%p%T%c%T%f%l{:}%T%m%n",
+          "filepath": "../resource/log_output/system.txt"
+        }
+      ]
+    }
+  ],
+  "system":[
+    {"port":10000}
+  ]
+}
+

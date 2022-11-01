@@ -1,0 +1,1 @@
+/usr/local/bin/c++   -g  -std=c++11 -Wno-deprecated -Wno-dev  -Wno-builtin-macro-redefined  -Wno-unused-function  -lstdc++ -rdynamic CMakeFiles/test_json.dir/test_json.cpp.o -o /home/fepoh/workspace/fepoh_server/bin/test_json  -Wl,-rpath,/home/fepoh/workspace/fepoh_server/tests -ljsoncpp -lyaml-cpp libfepoh_server.so -lpthread 
