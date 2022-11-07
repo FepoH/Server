@@ -23,9 +23,6 @@ static void ListAllNode(std::vector<std::pair<std::string,Json> >& allNode,Json 
         FEPOH_LOG_ERROR(g_log_root) << "Config invalid name: " << prefix << " : " << node;
         return;
     }
-    // if(!prefix.empty()){
-    //     allNode.push_back(std::make_pair(prefix,node));
-    // }
     for(auto [key,value]:node.items()){
         std::string tmpstr = prefix.empty() ? key : prefix + "." + key;
         if(value.is_array()){
@@ -44,9 +41,7 @@ void Config::LoadFromJson(const std::string& filepath){
     Json root = Json::parse(ifs);
     std::vector<std::pair<std::string,Json> > allNode;
     ListAllNode(allNode,root,"");
-    // for(auto it = allNode.begin();it!=allNode.end();++it){
-    //     std::cout <<it->first <<" " <<it->second <<std::endl;
-    // }
+
     for(auto& item:allNode){
         std::string key = item.first;
         if(key.empty()){

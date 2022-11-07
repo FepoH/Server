@@ -12,6 +12,8 @@ namespace fepoh{
 /*
     协程,不能单独使用,未定义单独使用的api,必须联合scheduler使用
     若想单独使用,可仿照写出单独使用的api.非常简单.
+    
+    单线程操作,不涉及多线程
 
     心得:此处必须非常注意ptr和裸指针的使用,一不小心就会犯下只能指针未释放的错误;
 */
@@ -26,7 +28,7 @@ public:
         TERM            //结束状态
     };
     //默认非use_caller
-    Fiber(std::function<void()> cb,uint32_t stacksize = g_fiber_stacksize,bool use_caller = false);
+    Fiber(std::function<void()> cb,uint32_t stacksize = g_fiber_stacksize->getValue(),bool use_caller = false);
     ~Fiber();
     //切换root fiber
     void swapIn();

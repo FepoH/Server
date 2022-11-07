@@ -14,7 +14,6 @@ namespace fepoh{
 
     LogManager::ptr LogManager::GetInstance(){
         static LogManager::ptr log_mgr(new LogManager());
-
         return log_mgr;
     }
 
@@ -40,10 +39,10 @@ namespace fepoh{
     }
 
     Logger::ptr LogManager::getLogger(const std::string& name){
-        MutexLock locker(m_mutex);
         if(name.empty()){
             return m_root;
         }
+        MutexLock locker(m_mutex);
         auto it = m_loggers.find(name);
         if(it == m_loggers.end()){
             Logger::ptr newLogger(new Logger(name));

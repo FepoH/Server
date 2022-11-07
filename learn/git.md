@@ -76,6 +76,7 @@ git stash show -p   //比较区别
 git stash apply stash_id    //恢复工作进度
 git stash pop stash_id      //删除暂存文件
 
+### git fetch
 
 + git不会跟踪空白目录
 + 对文件进行修改之后,要重新添加
@@ -85,3 +86,24 @@ git stash pop stash_id      //删除暂存文件
 + 工作区:就是当前项目的文件
 + 暂存区:就是`add`后的区域
 + 仓库:就是已经`commit`的各个版本
+
+### 错误
+**错误**
+fatal: unable to access 'https://github.com/FepoH/Server.git/': Failed connect to 127.0.0.1:443; Connection refused
+**解决方法**
+删除配置文件中的http.proxy
+
+**错误**
+Permission denied (publickey).
+fatal: Could not read from remote repository.
+**解决方法**
++ ssh-keygen -t rsa -C "Fepo_H@163.com"       //生成公钥
++ 添加到github的配置中
+
+### 防火墙
+firewall-cmd --stat     //查看防火墙
+
+sudo firewall-cmd --zone=public --add-port=80/tcp --permanent //查看某个端口是否开放
+
+sudo systemctl restart firewalld.service    //重启防火墙
+                                            //start,stop//开启和关闭

@@ -1,3 +1,4 @@
+#pragma once
 #include "scheduler_manager.h"
 #include "timer.h"
 #include "fiber.h"

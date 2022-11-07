@@ -45,11 +45,10 @@ namespace fepoh{
         例如:1--tostring-->"1",而yaml不会出现此类问题
         后续应增加基础类型判断,或采用其他方法处理该问题
 解决过程:
-    1.  已完成对基础类型判断,采取util中的IsBaseType,对基础类型进行判断,并且对性能由一定提升,
-      因为stl容器嵌套再嵌套的情况相较于与只嵌套基础类型来说是比较少的,
+    1.  已完成对基础类型判断,采取util中的IsBaseType,对基础类型进行判断,并且对性能由一定提升
+
       但是在此过程中发现该Json库含有一个bug,对于unorder_map,此库dump输出总是排序的,
       这与unorder_map的性质不符合,因为tostring对与项目影响不大,故未深究.
-
 */
 
 //配置变量基类 
@@ -371,7 +370,8 @@ public:
             ReadLock lock(m_mutex);
             if(m_value == value){
                 return ;
-            }    
+            }
+            //在变量修改后调用回调函数
             for(auto& i : m_listeners) {
                 i.second(m_value, value);
             }
@@ -437,7 +437,7 @@ public:
 private:
     //回调函数
     std::map<uint64_t,ListenerFunc> m_listeners;
-    T m_value;
+    T m_value;      //值
 };
 
 class Config{
@@ -470,6 +470,7 @@ public:
         }
         return nullptr;
     }
+    //查找配置,返回基类
     static ConfigVarBase::ptr LookupBase(const std::string& name){
         ReadLock lock(m_mutex);
         auto it = GetData().find(name);
@@ -482,6 +483,7 @@ public:
 private:
     static RWMutex m_mutex;
 private:
+    //处理跨编译单元初始化次序问题(尝试)
     static std::map<std::string,ConfigVarBase::ptr>& GetData(){
         static std::map<std::string,ConfigVarBase::ptr> m_data;
         return m_data;
@@ -491,29 +493,6 @@ private:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//     const std::string getDescription()const{return m_description;}
-//     //tostring fromstring
-//     virtual const std::string toString()=0;
-//     virtual bool fromString(const std::string& str)=0;
-//     //获取类型
 
 //vector list
 //set  uset map umap

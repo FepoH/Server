@@ -6,10 +6,7 @@
 
 namespace fepoh{
 
-/*
-    由于配置系统YAML出问题,通过此结构体进行初始化;
-    后面通过Json实现配置系统再进行改装
-*/
+
 static std::string LogDefineDump(const LogDefine& ld){
     Json js(ld);
     return js.dump();
@@ -21,6 +18,7 @@ public:
     LogDefine operator()(const std::string& str){
         Json root = Json::parse(str);
         LogDefine ld;
+        //无日志器名称或无输出地,直接忽略
         if((!root.contains("name"))||(!root.contains("appenders"))){
             return ld;
         }
@@ -31,6 +29,7 @@ public:
                 if(item["type"].get<int>() == 0){
                     apd.type = 0;
                 }else if(item["type"].get<int>() == 1){
+                    //文件输出地无路径直接忽略
                     if(!item.contains("filepath")){
                         continue;
                     }
@@ -51,7 +50,7 @@ public:
         }
         ld.name = root["name"].get<std::string>();
         ld.level = root.contains("level") ? LogLevel::FromString(root["level"].get<std::string>()) : LogLevel::DEBUG;
-        std::cout<<"----" <<LogDefineDump(ld) <<std::endl;
+        //std::cout<<"----" <<LogDefineDump(ld) <<std::endl;
         return ld;
     }
 };
@@ -98,12 +97,12 @@ public:
 ConfigVar<std::set<LogDefine> >::ptr g_logs_define
         = Config::Lookup<std::set<LogDefine> >(std::set<LogDefine>(),"logs","logs config");
 
-
-
 //1.old存在,new不存在
 //2.old存在,new存在
 //3.old不存在,new存在
 //4.old不存在,new不存在(不需要处理)
+
+//此处直接采取清空,再添加新logger的方式处理,不进行以上判断
 struct __LogInit__{
     __LogInit__(){
         g_logs_define->addListener([](const std::set<LogDefine>& old_value,
@@ -111,23 +110,9 @@ struct __LogInit__{
             LogManager::GetInstance()->clrLogger();
             FEPOH_LOG_DEBUG(g_log_root) <<"logs config cb";
             for(auto& i : new_value) {
-                auto it = old_value.find(i);
                 fepoh::Logger::ptr logger;
-                if(it == old_value.end()) {
-                    //新增logger
-                    logger.reset(new Logger(i.name));
-                } else {
-                    if(!(i == *it)) {
-                        //修改的logger
-                        logger = FEPOH_LOG_NAME(i.name);
-                    } else {
-                        continue;
-                    }
-                }
+                logger.reset(new Logger(i.name));
                 logger->setLevel(i.level);
-                //std::cout << "** " << i.name << " level=" << i.level
-                //<< "  " << logger << std::endl;
-
                 logger->clrAppender();
                 for(auto& a : i.appenders) {
                     fepoh::LogAppender::ptr ap;

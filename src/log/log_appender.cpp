@@ -27,7 +27,6 @@ namespace fepoh{
 
 	FileLogAppender::FileLogAppender(const std::string& filepath,LogFormatter::ptr formatter,LogLevel::Level level)
 			:LogAppender(formatter,level),m_filepath(filepath){
-		MutexLock locker(m_mutex);
 		m_lastOpenTime = time(0);
 		reopen();
 	}
@@ -54,9 +53,9 @@ namespace fepoh{
 	}
 	
 	void FileLogAppender::log(LogEvent::ptr event,LogLevel::Level level,std::shared_ptr<Logger> logger) {
-		MutexLock locker(m_mutex);
 		bool flag = false;
 		if((time(0)-m_lastOpenTime)>1){
+			MutexLock locker(m_mutex);
 			flag = reopen();
 		}
 		if(!m_filestream){
@@ -64,9 +63,9 @@ namespace fepoh{
 			return ;
 		}
 		if(level >= m_level){
+			MutexLock locker(m_mutex);
 			m_formatter->format(m_filestream,event,level,logger);
 		}
-		
 	}
 	
 	

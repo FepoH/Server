@@ -17,6 +17,9 @@ static std::atomic<uint64_t> t_fiber_id = {0};       //协程id,一直递增
 
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
+// static ConfigVar<uint32_t>::ptr g_fiber_stacksize = 
+//         Config::Lookup<uint32_t>(128*1024,"fiber.stacksize","fiber stack size");
+
 //main协程负责切换,无栈大小和栈空间,且一直处于执行状态;
 Fiber::Fiber():m_stacksize(0),m_state(State::EXEC){
     m_id = ++t_fiber_id;
@@ -32,7 +35,8 @@ Fiber::Fiber():m_stacksize(0),m_state(State::EXEC){
 Fiber::Fiber(std::function<void()> cb,uint32_t stacksize,bool use_caller)
         :m_cb(cb){
     //最少分配50k,太少了容易栈溢出导致错误,为防止不必要的麻烦,故定义;
-    m_stacksize = stacksize > 50*1028 ? stacksize : g_fiber_stacksize;
+    m_stacksize = stacksize > 50*1028 ? stacksize : g_fiber_stacksize->getValue();
+    //m_stacksize = stacksize > 50*1028 ? stacksize : g_fiber_stacksize;
     m_id = ++t_fiber_id;
     ++t_fiber_count;
     m_state = State::INIT;

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "fiber.h"
 #include "thread/mutex.h"
 #include "thread/thread.h"

@@ -12,10 +12,8 @@ include_directories(./tests)
 include_directories(./src)
 include_directories(./include)
 
-
-
-find_library(JSON json)
-message("*******************",${JSON})
+#find_library(JSON json)
+#message("*******************",${JSON})
 
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
@@ -46,13 +44,10 @@ set(LIB_SRC
 )
 
 
-
 set(LIB_LIB
         yaml-cpp
         fepoh_server
         pthread
-        
-        
     )
 
 add_library(fepoh_server SHARED ${LIB_SRC})

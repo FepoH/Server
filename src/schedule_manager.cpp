@@ -22,7 +22,7 @@ ScheduleManager::ScheduleManager(const std::string& name,uint32_t thrCount,bool 
         m_threadIds.push_back(fepoh::GetThreadId());
         //该线程纳入调度器
         Fiber::GetThis();
-        t_root_fiber.reset(new Fiber(std::bind(&ScheduleManager::run,this),g_fiber_root_stacksize,true));
+        t_root_fiber.reset(new Fiber(std::bind(&ScheduleManager::run,this),g_fiber_root_stacksize->getValue(),true));
     }else{
         t_root_fiber = Fiber::GetThis();
     }  

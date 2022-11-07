@@ -76,7 +76,7 @@ void Timer::cancel(){
 
 
 bool Timer::isExpired(){
-    return (m_trigger <= fepoh::GetCurTimeMs())||(!m_cb);
+    return (m_trigger <= fepoh::GetCurTimeMs())&&(!m_cb);
 }
 
 //已经过时的和无回调函数的timer不能插入
@@ -134,7 +134,6 @@ std::list<std::function<void()>> TimerManager::listAllExpired(){
         }
         timer->refreshNoLock();
         m_timers.insert(timer);
-
     }
     return cbs;
 }
