@@ -28,7 +28,7 @@ public:
         TERM            //结束状态
     };
     //默认非use_caller
-    Fiber(std::function<void()> cb,uint32_t stacksize = g_fiber_stacksize->getValue(),bool use_caller = false);
+    Fiber(std::function<void()> cb,uint32_t stacksize = 0,bool use_caller = false);
     ~Fiber();
     //切换root fiber
     void swapIn();

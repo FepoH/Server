@@ -64,6 +64,7 @@ class TimerManager{
 public:
     friend class Timer;
     typedef std::shared_ptr<TimerManager> ptr;
+
     TimerManager(){}
     ~TimerManager(){}
     //添加定时器
@@ -72,10 +73,12 @@ public:
     void delTimer(Timer::ptr timer);
     //清理定时器
     void clrTimer();
-    //返回所有的
-    std::list<std::function<void()>> listAllExpired();
+    //返回所有的过时定时器的回调函数
+    void listAllExpired(std::list<std::function<void()>>& listCbs);
     //是否有定时器
     bool hasTimer();
+    //获取最小的定时器与当前时间的差距
+    uint64_t getMinTrigger();
 protected:
     Mutex m_mutex;      //锁
     std::set<Timer::ptr,Timer::TimerCmp> m_timers;

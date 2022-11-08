@@ -451,7 +451,7 @@ public:
         ReadLock lock(m_mutex);
         auto it = GetData().find(name);
         if(it != GetData().end()){
-            FEPOH_LOG_ERROR(g_log_root) << "Config::Lookup error. The value is already exist";
+            FEPOH_LOG_ERROR(g_log_root) << "Config::Lookup error. The value:"<<name <<"is already exist";
             return std::dynamic_pointer_cast<ConfigVar<T>>(GetData()[name]);
         }
         typename ConfigVar<T>::ptr var(new ConfigVar<T>(val,name,discription));

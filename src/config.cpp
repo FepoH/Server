@@ -51,7 +51,6 @@ void Config::LoadFromJson(const std::string& filepath){
         if(var) {
             std::stringstream ss;
             ss << item.second;
-            std::cout <<key <<std::endl;
             var->fromstring(ss.str());
         }
     }

@@ -34,8 +34,15 @@ namespace fepoh{
 		public:
 			LineNumItem(const std::string& addContent = ""):FormatItem(addContent){}
 			void format(std::ostream& out,LogEvent::ptr event,LogLevel::Level level,std::shared_ptr<Logger> logger) override{
-				out << m_addContent<<event->getLine();
+				out << event->getLine();
 				
+			}
+	};
+	class AddContentItem : public LogFormatter::FormatItem{
+		public:
+			AddContentItem(const std::string& addContent = ""):FormatItem(addContent){}
+			void format(std::ostream& out,LogEvent::ptr event,LogLevel::Level level,std::shared_ptr<Logger> logger) override{
+				out << m_addContent;
 			}
 	};
 	class ElapseItem : public LogFormatter::FormatItem{
@@ -100,8 +107,6 @@ namespace fepoh{
 			}
 	};
 	
-
-
 	LogFormatter::LogFormatter(const std::string& pattern):m_pattern(pattern),m_isInit(false){
 		init();
 	}
@@ -116,7 +121,7 @@ namespace fepoh{
 	}
 	
 	//ToDo
-	//%%d	%d%dd	%d{afd}
+	//%d	%d%dd	%d{afd}
 	void LogFormatter::init(){
 		bool flag = false;
 		std::string addContent = "";
@@ -140,10 +145,18 @@ namespace fepoh{
 						i = n;
 						break;
 					}
+					i = index;
 					addContent = m_pattern.substr(n+1,index-n-1);
 					vctChStr.push_back(std::make_pair(resChar,addContent));
 				}else{
-					continue;
+					if(n+1<m_pattern.size()&&m_pattern[n+1]=='%'){
+						addContent = m_pattern.substr(n,1);
+						vctChStr.push_back(std::make_pair(resChar,""));
+						vctChStr.push_back(std::make_pair('S',addContent));
+						i = n+1;
+					}else{
+						continue;
+					}
 				}
 			}
 			if(n == m_pattern.size()){
@@ -166,11 +179,20 @@ namespace fepoh{
     	    XX('T', TabItem),               //T:Tab
        		XX('F', FiberIdItem),           //F:协程id
         	XX('N', ThreadNameItem),        //N:线程名称
+			XX('S', AddContentItem),		//添加字符内容
 #undef XX
     	};
 		if(!vctChStr.empty()){
 			for(auto& i:vctChStr){
-				m_items.push_back(s_format_items[i.first](i.second));
+				try{
+					m_items.push_back(s_format_items[i.first](i.second));
+				}catch(...){
+					std::string s;
+					s = " ";
+					s[0] = i.first;
+					m_items.push_back(s_format_items['S']("<Pattern error:"+ s + ">"));
+				}
+				
 			}
 			m_isInit = true;
 		}else{

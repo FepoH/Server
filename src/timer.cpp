@@ -106,14 +106,21 @@ void TimerManager::clrTimer(){
     m_timers.clear();
 }
 
+uint64_t TimerManager::getMinTrigger(){
+    if(hasTimer()){
+        uint64_t minTime = (*(m_timers.begin()))->getTrigger();
+        return minTime > GetCurTimeMs() ? minTime - GetCurTimeMs() : 100 ;
+    }
+    return ~0ull;
+}
 
-std::list<std::function<void()>> TimerManager::listAllExpired(){
+
+void TimerManager::listAllExpired(std::list<std::function<void()>>& listCbs){
     uint64_t cur = fepoh::GetCurTimeMs();
-    std::list<std::function<void()>> cbs;
     std::list<Timer::ptr> timers;
     Mutex locker(m_mutex);
     if(m_timers.empty()){
-        return cbs;
+        return ;
     }
     auto it = m_timers.begin();
     for(;it != m_timers.end();++it){
@@ -128,19 +135,18 @@ std::list<std::function<void()>> TimerManager::listAllExpired(){
         if(!timer->m_cb){
             continue;
         }
-        cbs.push_back(timer->m_cb);
+        listCbs.push_back(timer->m_cb);
         if(!timer->m_recurring){
             continue;
         }
         timer->refreshNoLock();
         m_timers.insert(timer);
     }
-    return cbs;
 }
 
 bool TimerManager::hasTimer(){
     MutexLock lock(m_mutex);
-    return m_timers.empty();
+    return !m_timers.empty();
 }
 
 }//namespace

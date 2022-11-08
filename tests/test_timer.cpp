@@ -26,7 +26,7 @@ void test_timer(){
     timeMgr->addTimer(time);
     timeMgr->addTimer(time1);
     while(1){
-        cbs = timeMgr->listAllExpired();
+        timeMgr->listAllExpired(cbs);
         for(auto item:cbs){
             item();
         }

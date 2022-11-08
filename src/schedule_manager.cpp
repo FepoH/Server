@@ -11,11 +11,15 @@ static thread_local ScheduleManager* t_scheduler = nullptr;
 
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
+static ConfigVar<uint32_t>::ptr g_fiber_root_stacksize = 
+        Config::Lookup<uint32_t>(1024*1024,"system.fiber.root.stacksize","fiber root stack size");
+
+
 ScheduleManager::ScheduleManager(const std::string& name,uint32_t thrCount,bool use_caller)
         :m_name(name),m_useCaller(use_caller){
     m_threadCount = thrCount > 0 ? thrCount:1;
     t_scheduler = this;
-    if(!has_use_caller&&use_caller){
+    if((!has_use_caller)&&use_caller){
         Thread::SetName(m_name);
         has_use_caller = true;
         --m_threadCount;
@@ -80,8 +84,13 @@ void ScheduleManager::stop(){
     }
 }
 
+void ScheduleManager::SetThis(ScheduleManager* val){
+    t_scheduler = val;
+}
+
 void ScheduleManager::run(){
     //多线程操作
+    SetThis(this);
     FEPOH_LOG_INFO(s_log_system)<< "ScheduleManager::run";
     if(t_root_fiber == nullptr){
         t_root_fiber = Fiber::GetThis();
@@ -158,11 +167,16 @@ void ScheduleManager::schedule(Task task){
 }
 
 void ScheduleManager::schedule(std::function<void()> cb){
-    Task tsk(cb);
-    scheduleNoLock(tsk);
+    Task task(cb);
+    scheduleNoLock(task);
 }
 
 void ScheduleManager::scheduleNoLock(Task task){
+    m_tasks.push_back(task);
+}
+
+void ScheduleManager::scheduleNoLock(std::function<void()> cb){
+    Task task(cb);
     m_tasks.push_back(task);
 }
 

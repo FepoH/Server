@@ -21,7 +21,6 @@ if(Boost_FOUND)
 endif()
 
 set(LOG_SRC
-
     src/log/log_appender.cpp
     src/log/log_event.cpp
     src/log/log_formatter.cpp
@@ -29,7 +28,7 @@ set(LOG_SRC
     src/log/log.cpp
     src/log/log_manager.cpp
     src/log/logger.cpp
-    )
+)
 
 set(LIB_SRC 
     ${LOG_SRC}
@@ -41,23 +40,22 @@ set(LIB_SRC
     src/util.cpp
     src/schedule_manager.cpp
     src/timer.cpp
+    src/io_manager.cpp
 )
 
 
 set(LIB_LIB
-        yaml-cpp
-        fepoh_server
-        pthread
-    )
+    yaml-cpp
+    fepoh_server
+    pthread
+)
 
 add_library(fepoh_server SHARED ${LIB_SRC})
 
 
 
-
-
 add_executable(test_log tests/test_log.cpp)
-add_dependencies(test_log fepoh_server )
+add_dependencies(test_log fepoh_server)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 target_link_libraries(test_log ${LIB_LIB} )
 
 add_executable(test_config tests/test_config.cpp)
@@ -84,6 +82,10 @@ target_link_libraries(test_scheduler ${LIB_LIB})
 add_executable(test_timer tests/test_timer.cpp)
 add_dependencies(test_timer fepoh_server)
 target_link_libraries(test_timer ${LIB_LIB})
+
+add_executable(test_iomanager tests/test_iomanager.cpp)
+add_dependencies(test_iomanager fepoh_server)
+target_link_libraries(test_iomanager ${LIB_LIB})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)

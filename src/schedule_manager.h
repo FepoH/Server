@@ -68,6 +68,8 @@ class ScheduleManager : public boost::noncopyable{
         static void SetThis(ScheduleManager* val);
         //获取root协程
         static Fiber* GetRootFiber();
+        //是否有空闲线程
+        bool  hasIdleThread() const {return m_idleThreadCount>0;}
     protected:
         //空闲任务
         virtual void idle();
@@ -75,15 +77,20 @@ class ScheduleManager : public boost::noncopyable{
         virtual bool isStop();
         //通知,唤醒线程
         virtual void notice();
+
+        bool m_isStop = true;               //停止
+        bool m_isStopping = false;
     private:
         //无锁添加任务
         void scheduleNoLock(Task task);
+        void scheduleNoLock(std::function<void()> cb);
         //线程执行函数
         void run();
         //是否已经有use_caller
         static bool has_use_caller;
+        
     private:
-        bool m_isStop = true;               //停止
+        
         //是否执行流程的线程也纳入进去,默认纳入应该好一些,有利于资源的利用
         bool m_useCaller;           
         Mutex m_mutex;                      //锁
