@@ -204,6 +204,13 @@ void Fiber::ScheduleRun(){
     FEPOH_LOG_DEBUG(s_log_system)<<"Fiber::ScheduleRun error.never reach";
 }
 
+uint32_t Fiber::GetFiberId(){
+    if(t_fiber){
+        return t_fiber->getId();
+    }
+    return 0;
+}
+
 // void Fiber::test(const std::string& str){
 //     std::cout << t_main_fiber.use_count() << "  " << str <<std::endl;
 // }

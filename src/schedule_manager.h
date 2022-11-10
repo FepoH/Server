@@ -61,6 +61,7 @@ class ScheduleManager : public boost::noncopyable{
         //单个添加任务
         void schedule(Task task);
         void schedule(std::function<void()> cb);
+        void schedule(Fiber::ptr fiber);
     public:
         //获取线程的协程调度器
         static ScheduleManager* GetThis();

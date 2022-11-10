@@ -21,17 +21,18 @@ void test_timer(){
     int count = 3;
     std::list<std::function<void()>> cbs;
     TimerManager::ptr timeMgr(new TimerManager());
-    Timer::ptr time(new Timer(test_func2,3000,timeMgr.get(),true));
-    Timer::ptr time1(new Timer(test_func1,2000,timeMgr.get(),true));
-    timeMgr->addTimer(time);
+    //Timer::ptr time(new Timer(3000,timeMgr.get(),test_func2,true));
+    Timer::ptr time1(new Timer(2000,timeMgr.get(),test_func1,true));
+    //timeMgr->addTimer(time);
     timeMgr->addTimer(time1);
     while(1){
+        cbs.clear();
         timeMgr->listAllExpired(cbs);
         for(auto item:cbs){
             item();
         }
         if(count == 5){
-            time->setRecurring(false);
+            //time->setRecurring(false);
         }
         //FEPOH_LOG_DEBUG(s_log_system) << fepoh::GetCurTimeMs();
         // sleep(1);

@@ -23,7 +23,7 @@ const std::string& GetThreadName(){
 }
 
 uint32_t GetFiberId(){
-    return Fiber::GetThis()->getId();
+    return fepoh::Fiber::GetFiberId();
 }
 
 uint64_t GetCurTimeMs(){

@@ -40,6 +40,8 @@ public:
     void backHold();
     //获取main协程
     static Fiber::ptr GetMainFiber();
+    //获取fiberID
+    static uint32_t GetFiberId();
     //获取当前执行协程
     static Fiber::ptr GetThis();
     //设置当前执行协程

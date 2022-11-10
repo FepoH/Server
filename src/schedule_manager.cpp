@@ -1,6 +1,7 @@
 #include "schedule_manager.h"
 #include "log/log.h"
 #include "macro.h"
+#include "hook.h"
 
 namespace fepoh{
 
@@ -90,6 +91,7 @@ void ScheduleManager::SetThis(ScheduleManager* val){
 
 void ScheduleManager::run(){
     //多线程操作
+    set_hook_enable(true);
     SetThis(this);
     FEPOH_LOG_INFO(s_log_system)<< "ScheduleManager::run";
     if(t_root_fiber == nullptr){
@@ -123,10 +125,6 @@ void ScheduleManager::run(){
         if(ft != nullptr && ft->getState()!=Fiber::TERM && ft->getState() != Fiber::EXCEPT){
             ft->swapIn();
             --m_activeThreadCount;
-            if(ft->getState() == Fiber::HOLD){
-                schedule(ft);
-            }
-            //其他状态一律删除任务
             fc.reset();
         }else{//没有任务执行，执行idle
             if(is_active){
@@ -168,6 +166,11 @@ void ScheduleManager::schedule(Task task){
 
 void ScheduleManager::schedule(std::function<void()> cb){
     Task task(cb);
+    scheduleNoLock(task);
+}
+
+void ScheduleManager::schedule(Fiber::ptr fiber){
+    Task task(fiber);
     scheduleNoLock(task);
 }
 

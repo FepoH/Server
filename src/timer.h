@@ -20,7 +20,7 @@ class Timer : public std::enable_shared_from_this<Timer>{
 public:
     typedef std::shared_ptr<Timer> ptr;
     friend class TimerManager;
-    Timer(std::function<void()> cb,uint64_t ms,TimerManager* manager,bool recurring = false);
+    Timer(uint64_t ms,TimerManager* manager,std::function<void()> cb,bool recurring = false);
     //刷新定时器时间,from_now:用以前的定时开始时间,还是当前时间
     void refresh(uint64_t ms = ~0ull,bool from_now =true);
     //重置定时器
@@ -69,6 +69,13 @@ public:
     ~TimerManager(){}
     //添加定时器
     void addTimer(Timer::ptr timer);
+    //添加定时器
+    Timer::ptr addTimer(uint64_t ms, std::function<void()> cb
+                                  ,bool recurring);
+    //添加条件定时器
+    Timer::ptr addConditionTimer(uint64_t ms, std::function<void()> cb
+                    ,std::weak_ptr<void> weak_cond
+                    ,bool recurring = false);
     //删除定时器
     void delTimer(Timer::ptr timer);
     //清理定时器

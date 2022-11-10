@@ -199,7 +199,7 @@ int IOManager::cancelAll(int fd){
     lock1.unlock();
     
     MutexLock lock(fd_ctx->mutex);
-    FEPOH_ASSERT(fd_ctx->events);
+    //FEPOH_ASSERT(fd_ctx->events);
     epoll_event ep_event;
     ep_event.events = 0;
     ep_event.data.ptr = fd_ctx;

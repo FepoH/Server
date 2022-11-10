@@ -152,7 +152,7 @@ struct __LogInit__{
     }
 };
 
-static struct __LogInit__  _log_init;
+static struct __LogInit__  _log_init_;
 
 // struct __LogInit__{
 //     __LogInit__(){

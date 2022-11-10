@@ -41,6 +41,9 @@ set(LIB_SRC
     src/schedule_manager.cpp
     src/timer.cpp
     src/io_manager.cpp
+    src/hook.cpp
+    src/fd_manager.cpp
+    src/address.cpp
 )
 
 
@@ -48,6 +51,7 @@ set(LIB_LIB
     yaml-cpp
     fepoh_server
     pthread
+    dl
 )
 
 add_library(fepoh_server SHARED ${LIB_SRC})
@@ -86,6 +90,14 @@ target_link_libraries(test_timer ${LIB_LIB})
 add_executable(test_iomanager tests/test_iomanager.cpp)
 add_dependencies(test_iomanager fepoh_server)
 target_link_libraries(test_iomanager ${LIB_LIB})
+
+add_executable(test_hook tests/test_hook.cpp)
+add_dependencies(test_hook fepoh_server)
+target_link_libraries(test_hook ${LIB_LIB})
+
+add_executable(test_address tests/test_address.cpp)
+add_dependencies(test_address fepoh_server)
+target_link_libraries(test_address ${LIB_LIB})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)

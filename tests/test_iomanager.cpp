@@ -2,9 +2,9 @@
 #include "log/log.h"
 #include "timer.h"
 
-#include <sys/types.h>          /* See NOTES */
+#include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/types.h>          /* See NOTES */
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
@@ -17,32 +17,32 @@ using namespace fepoh;
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
 
-void test_func1();
-static IOManager::ptr iom(new IOManager("iom",1,true));
-static Timer::ptr t(new Timer(test_func1,2000,iom.get(),true));
+// void test_func1();
+// static IOManager::ptr iom(new IOManager("iom",1,true));
+// static Timer::ptr t(new Timer(2000,iom.get(),test_func1,true));
 
-void test_func(){
-    FEPOH_LOG_DEBUG(s_log_system) <<" test**********";
-}
+// void test_func(){
+//     FEPOH_LOG_DEBUG(s_log_system) <<" test**********";
+// }
 
-void test_func1(){
-    static int i = 0;
-    ++i;
-    FEPOH_LOG_DEBUG(s_log_system) <<" test timer**********";
-    if(i == 1){
-        t->setRecurring(false);
-    }
-}
+// void test_func1(){
+//     static int i = 0;
+//     ++i;
+//     FEPOH_LOG_DEBUG(s_log_system) <<" test timer**********";
+//     if(i == 1){
+//         t->setRecurring(false);
+//     }
+// }
 
-void test(){
-    FEPOH_LOG_DEBUG(s_log_system) <<"main start";
-    iom->addTimer(t);
-    for(int i=0;i<4;++i){
-        iom->schedule(test_func);
-    }
-    iom->start();
-    iom->stop();
-}
+// void test(){
+//     FEPOH_LOG_DEBUG(s_log_system) <<"main start";
+//     iom->addTimer(t);
+//     for(int i=0;i<4;++i){
+//         iom->schedule(test_func);
+//     }
+//     iom->start();
+//     iom->stop();
+// }
 
 int sock = 0;
 
@@ -65,8 +65,8 @@ void test_epoll(){
         IOManager::GetThis()->addEvent(sock, IOManager::WRITE, [](){
             FEPOH_LOG_INFO(s_log_system) << "write callback**********";
             //close(sock);
-            IOManager::GetThis()->cancelEvent(sock,  IOManager::READ);
-            close(sock);
+            // IOManager::GetThis()->cancelEvent(sock,  IOManager::READ);
+            // close(sock);
         });
     } else {
         FEPOH_LOG_DEBUG(s_log_system) << "else " << errno << " " << strerror(errno);
@@ -81,6 +81,6 @@ void test1() {
 }
 
 int main(){
-    test();
+    //test();
     test1();
 }

@@ -22,7 +22,7 @@ bool Timer::TimerCmp::operator()(Timer::ptr lhs,Timer::ptr rhs){
     return lhs.get() < rhs.get();
 }
 
-Timer::Timer(std::function<void()> cb,uint64_t ms,TimerManager* manager,bool recurring)
+Timer::Timer(uint64_t ms,TimerManager* manager,std::function<void()> cb,bool recurring)
         :m_cb(cb),m_ms(ms),m_recurring(recurring),m_manager(manager){
     m_trigger = fepoh::GetCurTimeMs() + m_ms;
 }
@@ -87,6 +87,26 @@ void TimerManager::addTimer(Timer::ptr timer){
     MutexLock lock(m_mutex);
     m_timers.insert(timer);
 }
+
+Timer::ptr TimerManager::addTimer(uint64_t ms, std::function<void()> cb
+                                  ,bool recurring) {
+    Timer::ptr timer(new Timer(ms,this ,cb ,recurring));
+    addTimer(timer);
+    return timer;
+}
+
+static void OnTimer(std::weak_ptr<void> weak_cond, std::function<void()> cb) {
+    std::shared_ptr<void> tmp = weak_cond.lock();
+    if(tmp) {
+        cb();
+    }
+}
+
+Timer::ptr TimerManager::addConditionTimer(uint64_t ms, std::function<void()> cb
+        ,std::weak_ptr<void> weak_cond,bool recurring){
+    return addTimer(ms, std::bind(&OnTimer, weak_cond, cb), recurring);
+}
+
 
 void TimerManager::delTimer(Timer::ptr timer){
     MutexLock lock(m_mutex);

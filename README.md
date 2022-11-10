@@ -2,15 +2,14 @@
 
 ## 日志模块
 
+**注:** 本项目中:log分成了多个编译单元,可以直接整合成一个.h和.cpp,纯粹为了试一下分文件;
 ```
-采用log4j
-
-主要类:
-	LogLevel,LogFormatter,LogAppender,LogEvent,Logger,LogWrap(日志包装器)
-	
 日志输出内容含有以下内容:
-	"%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T%m%n"
-	文件名,行号,程序启动开始到现在的毫秒数,线程ID,协程ID,时间,线程名字,日志内容字符流,日志级别
+格式定义:"%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T%m%n"
+T为Tab键
+依次为:日期,线程号,线程名,协程id,日志级别,日志所有者,文件路径,行号,日志内容
+
+输入内容:2022-11-08 18:26:27     111540  iom     fepoh_thr_0       [DEBUG] [root]  /home/fepoh/workspace/fepoh_server/tests/test_iomanager.cpp:25   test
 	
 // 可变参数处理
 // vasprintf是linux的,windows稍微不同
