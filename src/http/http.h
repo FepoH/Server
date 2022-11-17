@@ -177,6 +177,7 @@ public:
     void setHeaders(const MapType& v) {m_headers = v;}
     void setParas(const MapType& v) {m_paras = v;}
     void setCookies(const MapType& v) {m_cookies = v;}
+    uint64_t getContentLength();
     //get
     template<class T>
     T getHeaderAs(const std::string& key,T def = T()){
@@ -251,6 +252,7 @@ public:
     const std::string& getBody() const {return m_body;}
     const MapType& getHeaders() const {return m_headers;}
     const MapType& getCookies() const {return m_cookies;}
+    uint64_t getContentLength();
 
     void setVersion(uint8_t v) {m_version = v;}
     void setClose(bool v) {m_close = v;}

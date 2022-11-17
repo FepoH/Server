@@ -123,7 +123,9 @@ void HttpRequest::delCookie(const std::string& key){
     m_cookies.erase(key);
 }
 
-  
+uint64_t HttpRequest::getContentLength(){
+    return getHeaderAs<uint64_t>("Content-Length",0);
+}
 
 
 
@@ -163,6 +165,10 @@ void HttpResponse::delHeader(const std::string& key){
 
 void HttpResponse::delCookie(const std::string& key){
     m_cookies.erase(key);
+}
+
+uint64_t HttpResponse::getContentLength(){
+    return getHeaderAs<uint64_t>("Content-Length",0);
 }
 
 std::ostream& HttpResponse::dump(std::ostream& os){

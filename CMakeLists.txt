@@ -55,6 +55,10 @@ set(LIB_SRC
     src/http/http_parser.cpp
     src/http/http_parser/http_nodejs_parser.c
     src/tcp_server.cpp
+    src/stream.cpp
+    src/socket_stream.cpp
+    src/http/http_session.cpp
+    src/http/http_server.cpp
 )
 
 
@@ -91,6 +95,7 @@ fepoh_add_executable(test_client "tests/test_client.cpp" fepoh_server "${LIB_LIB
 fepoh_add_executable(test_bytearray "tests/test_bytearray.cpp" fepoh_server "${LIB_LIB}")
 fepoh_add_executable(test_http_parser "tests/test_http_parser.cpp" fepoh_server "${LIB_LIB}")
 fepoh_add_executable(test_tcp_server "tests/test_tcp_server.cpp" fepoh_server "${LIB_LIB}")
+fepoh_add_executable(test_http_server "tests/test_http_server.cpp" fepoh_server "${LIB_LIB}")
 
 #examples
 fepoh_add_executable(echo_server "examples/echo_server.cpp" fepoh_server "${LIB_LIB}")

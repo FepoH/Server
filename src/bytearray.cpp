@@ -304,8 +304,8 @@ uint64_t ByteArray::getReadBuffers(std::vector<iovec>& buffers, uint64_t len) co
 
 uint64_t ByteArray::getReadBuffers(std::vector<iovec>& buffers
                                 ,uint64_t len, uint64_t position) const {
-    len = len > getReadSize() ? getReadSize() : len;
-    if(len == 0) {
+    len = len > m_size - position ? m_size - position : len;
+    if(len <= 0 ) {
         return 0;
     }
 
@@ -339,35 +339,35 @@ uint64_t ByteArray::getReadBuffers(std::vector<iovec>& buffers
     return size;
 }
 
-// uint64_t ByteArray::getWriteBuffers(std::vector<iovec>& buffers, uint64_t len) {
-//     if(len == 0) {
-//         return 0;
-//     }
-//     addCapacity(len);
-//     uint64_t size = len;
+uint64_t ByteArray::getWriteBuffers(std::vector<iovec>& buffers, uint64_t len) {
+    if(len == 0) {
+        return 0;
+    }
+    addCapacity(len);
+    uint64_t size = len;
 
-//     size_t npos = m_position % m_baseSize;
-//     size_t ncap = m_cur->size - npos;
-//     struct iovec iov;
-//     Node* cur = m_cur;
-//     while(len > 0) {
-//         if(ncap >= len) {
-//             iov.iov_base = cur->ptr + npos;
-//             iov.iov_len = len;
-//             len = 0;
-//         } else {
-//             iov.iov_base = cur->ptr + npos;
-//             iov.iov_len = ncap;
+    size_t npos = m_size % m_baseSize;
+    size_t ncap = m_baseSize - npos;
+    struct iovec iov;
+    Node* cur = m_write;
+    while(len > 0) {
+        if(ncap >= len) {
+            iov.iov_base = cur->ptr + npos;
+            iov.iov_len = len;
+            len = 0;
+        } else {
+            iov.iov_base = cur->ptr + npos;
+            iov.iov_len = ncap;
 
-//             len -= ncap;
-//             cur = cur->next;
-//             ncap = cur->size;
-//             npos = 0;
-//         }
-//         buffers.push_back(iov);
-//     }
-//     return size;
-// }
+            len -= ncap;
+            cur = cur->next;
+            ncap = m_baseSize;
+            npos = 0;
+        }
+        buffers.push_back(iov);
+    }
+    return size;
+}
 
 
 

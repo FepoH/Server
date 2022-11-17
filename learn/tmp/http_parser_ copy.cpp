@@ -63,27 +63,12 @@ struct __HttpInit__{
 
 static __HttpInit__ __http_init_;
 
-uint64_t HttpRequestParser::GetRequestHeadBufSize(){
-    return s_http_request_buffer_size;
-}
-uint64_t HttpRequestParser::GetRequestBodyBufSize(){
-    return s_http_request_max_body_size;
-}
-uint64_t HttpResponseParser::GetResponseHeadBufSize(){
-    return s_http_response_buffer_size;
-}
-uint64_t HttpResponseParser::GetResponseBodyBufSize(){
-    return s_http_response_max_body_size;
-}
+
 
 HttpRequestParser::HttpRequestParser():m_error(0)
             ,m_data(new HttpRequest()),m_isFinished(false){
     http_parser_init(&m_parser,HTTP_REQUEST);
     m_parser.data = this;
-}
-
-uint64_t HttpRequestParser::getContentLength(){
-    return m_data->getContentLength();
 }
 
 //????
@@ -164,7 +149,7 @@ int request_headers_complete_cb (http_parser *p){
     }else{
         parser->getData()->setClose(true);
     }
-    parser->setHeadFinish(true);
+    
     return 0;
 }
 
@@ -185,6 +170,19 @@ int request_chunk_complete_cb (http_parser *p){
     FEPOH_LOG_DEBUG(s_log_system) << "request_chunk_complete_cb";
     return 0;
 }
+
+
+// static http_parser_settings http_request_setting ={
+//     .on_message_begin    = request_message_begin_cb,
+//     .on_header_field     = request_header_field_cb,
+//     .on_header_value     = request_header_value_cb,
+//     .on_url              = request_request_url_cb,
+//     .on_status           = request_response_status_cb,
+//     .on_body             = request_body_cb,
+//     .on_headers_complete = request_headers_complete_cb,
+//     .on_message_complete = request_message_complete_cb,
+//     .on_chunk_header     = request_chunk_header_cb,
+//     .on_chunk_complete   = request_chunk_complete_cb};
 
 static http_parser_settings http_request_setting = {
     .on_message_begin    = request_message_begin_cb,
@@ -220,10 +218,6 @@ HttpResponseParser::HttpResponseParser():m_error(0)
             ,m_data(new HttpResponse()),m_isFinished(false){
     http_parser_init(&m_parser,HTTP_RESPONSE);
     m_parser.data = this;
-}
-
-uint64_t HttpResponseParser::getContentLength(){
-    return m_data->getContentLength();
 }
 
 int response_message_begin_cb (http_parser *p){
@@ -276,7 +270,6 @@ int response_headers_complete_cb (http_parser *p){
     }else{
         hrp->getData()->setClose(true);
     }
-    hrp->setHeadFinish(true);
     return 0;
 }
 
@@ -298,6 +291,22 @@ int response_chunk_complete_cb (http_parser *p){
     FEPOH_LOG_DEBUG(s_log_system) << "response_chunk_complete_cb";
     return 0;
 }
+
+
+// static http_parser_settings http_response_setting ={
+//     .on_message_begin    = response_message_begin_cb,
+//     .on_header_field     = response_header_field_cb,
+//     .on_header_value     = response_header_value_cb,
+//     .on_status           = response_response_status_cb,
+//     .on_body             = response_body_cb,
+//     .on_headers_complete = response_headers_complete_cb,
+//     .on_message_complete = response_message_complete_cb,
+//     .on_chunk_header     = response_chunk_header_cb,
+//     .on_chunk_complete   = response_chunk_complete_cb,
+//     .on_url              = response_request_url_cb
+// };
+
+
 
 static http_parser_settings http_response_setting = {
     .on_message_begin    = response_message_begin_cb,
@@ -323,3 +332,134 @@ int HttpResponseParser::execute(char *data, size_t len){
 }
 }
 
+
+
+/*request*/
+
+// void OnRequestUri(void *data, const char *at, size_t length){
+// }
+
+// void OnRequestHeaderDone(void *data, const char *at, size_t length){
+// }
+
+// void OnRequestFragment(void *data, const char *at, size_t length){
+//     HttpRequestParser* hrp = (HttpRequestParser*)data;
+//     std::string fr(at,length);
+//     hrp->getData()->setFragment(fr);
+// }
+
+// void OnRequestPath(void *data, const char *at, size_t length){
+//     HttpRequestParser* hrp = (HttpRequestParser*)data;
+//     std::string path(at,length);
+//     hrp->getData()->setPath(path);
+// }
+
+// void OnRequestHttpVersion(void *data, const char *at, size_t length){
+//     HttpRequestParser* hrp = (HttpRequestParser*)data;
+//     uint8_t version;
+//     if(strncmp("HTTP/1.1",at,length) == 0){
+//         version = 0x11;
+//     }else if(strncmp("HTTP/1.0",at,length)){
+//         version = 0x10;
+//     }else{
+//         FEPOH_LOG_ERROR(s_log_system) << "parser http version error.at = "
+//                 << at;
+//         hrp->setError(1001);
+//         return ;
+//     }
+//     hrp->getData()->setVersion(version);
+// }
+
+// void OnRequestQueryStr(void *data, const char *at, size_t length){
+//     HttpRequestParser* hrp = (HttpRequestParser*)data;
+//     std::string query(at,length);
+//     hrp->getData()->setQuery(query);
+// }
+
+// void OnRequestField(void *data, const char *field, size_t flen, const char *value, size_t vlen){
+//     HttpRequestParser* hrp = (HttpRequestParser*)data;
+//     if(flen <= 0){
+//         FEPOH_LOG_WARN(s_log_system) << "invalid field len = " << flen; 
+//         return ;
+//     }
+//     std::string key(field,flen);
+//     std::string val(value,vlen);
+//     hrp->getData()->setHead(key,val);
+// }
+
+// HttpRequestParser::HttpRequestParser():m_error(0),m_data(new HttpRequest()){
+//     http_parser_init(&m_parser,HTTP_REQUEST);
+//     m_parser.data = this;
+//     m_parser.http_field = OnRequestField;
+//     m_parser.request_method = OnRequestMethod;
+//     m_parser.request_uri = OnRequestUri;
+//     m_parser.fragment = OnRequestFragment;
+//     m_parser.request_path = OnRequestPath;
+//     m_parser.query_string = OnRequestQueryStr;
+//     m_parser.http_version = OnRequestHttpVersion;
+//     m_parser.header_done = OnRequestHeaderDone;
+// }
+
+
+/*response*/
+// void OnResponsReasonPhrase(void *data, const char *at, size_t length){
+//     HttpResponseParser* hcp = static_cast<HttpResponseParser*>(data);
+//     std::string reason(at,length);
+//     hcp->getData()->setReason(reason);
+// }
+
+// void OnResponsStatusCode(void *data, const char *at, size_t length){
+//     HttpResponseParser* hcp = static_cast<HttpResponseParser*>(data);
+//     HttpStatus status = (HttpStatus)(atoi(at));
+//     hcp->getData()->setStatus(status);
+// }
+
+// void OnResponsChunkSize(void *data, const char *at, size_t length){
+// }
+
+// void OnResponsHttpVersion(void *data, const char *at, size_t length){
+//     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(data);
+//     uint8_t version;
+//     if(strncmp("HTTP/1.1",at,length) == 0){
+//         version = 0x11;
+//     }else if(strncmp("HTTP/1.0",at,length)){
+//         version = 0x10;
+//     }else{
+//         FEPOH_LOG_ERROR(s_log_system) << "parser http version error.at = "
+//                 << at;
+//         hrp->setError(1001);
+//         return ;
+//     }
+//     hrp->getData()->setVersion(version);
+// }
+
+// void OnResponsHeaderDone(void *data, const char *at, size_t length){
+// }
+
+// void OnResponsLastChunk(void *data, const char *at, size_t length){
+// }
+
+
+// void OnResponseField(void *data, const char *field, size_t flen, const char *value, size_t vlen){
+//     HttpResponseParser* parser = static_cast<HttpResponseParser*>(data);
+//     if(flen == 0) {
+//         FEPOH_LOG_WARN(s_log_system) << "invalid http response field length == 0";
+//         //parser->setError(1002);
+//         return;
+//     }
+//     parser->getData()->setHead(std::string(field, flen)
+//                                 ,std::string(value, vlen));
+// }
+
+// HttpResponseParser::HttpResponseParser():m_error(0),m_data(new HttpResponse()){
+//     httpclient_parser_init(&m_parser,HTTP_RESPONSE);
+//     m_parser.data = this;
+//     m_parser.http_field = OnResponseField;
+
+//     m_parser.reason_phrase = OnResponsReasonPhrase;
+//     m_parser.status_code = OnResponsStatusCode;
+//     m_parser.chunk_size = OnResponsChunkSize;
+//     m_parser.http_version = OnResponsHttpVersion;
+//     m_parser.header_done = OnResponsHeaderDone;
+//     m_parser.last_chunk = OnResponsLastChunk;
+// }

@@ -22,12 +22,6 @@ public:
     int execute(char *data, size_t len);
     int isFinished() const {return m_isFinished;}
     void setFinished(bool v) {m_isFinished = v;}
-
-    static uint64_t GetRequestHeadBufSize();
-    static uint64_t GetRequestBodyBufSize();
-
-    bool getHeadFinish() const {return m_headFinish;}
-    void setHeadFinish(bool v) {m_headFinish = v;}
     uint64_t getContentLength();
 private:
     HttpRequest::ptr m_data; //请求
@@ -35,7 +29,6 @@ private:
     int m_error;            //错误
     std::string m_field;    //头部field
     bool m_isFinished;
-    bool m_headFinish;      //头部解析
 };
 
 
@@ -53,24 +46,16 @@ public:
     const std::string getField() const {return m_field;}
     void setField(const std::string& v) {m_field = v;}
 
-    bool getHeadFinish() const {return m_headFinish;}
-    void setHeadFinish(bool v) {m_headFinish = v;}
-    uint64_t getContentLength();
-
     int execute(char *data, size_t len);
     int hasError() const {return m_error;}
     int isFinished() const {return m_isFinished;}
     void setFinished(bool v) {m_isFinished = v;}
-
-    static uint64_t GetResponseHeadBufSize();
-    static uint64_t GetResponseBodyBufSize();
 private:
     HttpResponse::ptr m_data;
     http_parser m_parser;
     int m_error;
     bool m_isFinished;
     std::string m_field;    //头部field
-    bool m_headFinish = false;      //头部解析
 };
 
 
