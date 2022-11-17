@@ -4,7 +4,7 @@
 
 #include <arpa/inet.h>
 #include <ifaddrs.h>
-// #include "endian.h"
+
 
 namespace fepoh{
 
@@ -22,6 +22,24 @@ static uint32_t CountBytes(T value){
         value &= value -1;
     }
     return res;
+}
+
+
+Address::ptr Address::LookupIPAddr(const std::string& node ,uint16_t port){
+    return IPAddress::Lookup(node,port);
+}
+
+bool Address::LookupIPAddr(std::vector<Address::ptr>& vecAddr
+            ,const std::string& node,uint16_t port){
+    std::vector<IPAddress::ptr> ipAddrs;
+    bool rt = IPAddress::Lookup(ipAddrs,node,port);
+    if(!rt){
+        return false;
+    }
+    for(auto& ipAddr : ipAddrs){
+        vecAddr.push_back(ipAddr);
+    }
+    return true;
 }
 
 Address::ptr Address::Create(const struct sockaddr* addr ,socklen_t socklen){
@@ -42,7 +60,7 @@ Address::ptr Address::Create(const struct sockaddr* addr ,socklen_t socklen){
     return address;
 }
 
-IPv4Address::ptr IPv4Address::Create(const std::string& address ,uint32_t port){
+IPv4Address::ptr IPv4Address::Create(const std::string& address ,uint16_t port){
     struct sockaddr_in addr;
     bzero(&addr ,sizeof(addr));
     int rt = inet_pton(AF_INET ,address.c_str() ,&addr.sin_addr.s_addr);
@@ -56,7 +74,7 @@ IPv4Address::ptr IPv4Address::Create(const std::string& address ,uint32_t port){
     return IPv4Address::ptr(new IPv4Address(addr));
 }
 
-IPv6Address::ptr IPv6Address::Create(const std::string& address ,uint32_t port){
+IPv6Address::ptr IPv6Address::Create(const std::string& address ,uint16_t port){
     struct sockaddr_in6 addr;
     bzero(&addr ,sizeof(addr));
     int rt = inet_pton(AF_INET6 ,address.c_str() ,&addr.sin6_addr.s6_addr);
@@ -75,17 +93,17 @@ static bool Lookup(std::vector<IPAddress::ptr>& vecIPaddr,const std::string& hos
 
 
 
-IPAddress::ptr IPAddress::Lookup(const std::string& node ,uint32_t port){
+IPAddress::ptr IPAddress::Lookup(const std::string& node ,uint16_t port){
     std::vector<IPAddress::ptr> vecIPAddr;
     return Lookup(vecIPAddr,node,port,false);
 }
 
-bool IPAddress::Lookup(std::vector<IPAddress::ptr>& vecIPAddr,const std::string& node,uint32_t port){
+bool IPAddress::Lookup(std::vector<IPAddress::ptr>& vecIPAddr,const std::string& node,uint16_t port){
     Lookup(vecIPAddr,node,port,true);
     return !vecIPAddr.empty();
 }
 
-IPAddress::ptr IPAddress::Lookup(std::vector<IPAddress::ptr>& vecIPAddr,const std::string& node ,uint32_t port,
+IPAddress::ptr IPAddress::Lookup(std::vector<IPAddress::ptr>& vecIPAddr,const std::string& node ,uint16_t port,
             bool rtvec,int family,int type,int protocol){
     vecIPAddr.clear();
     struct addrinfo hints;
@@ -255,7 +273,7 @@ IPv4Address::IPv4Address(struct sockaddr_in& addr){
     m_addr = addr;
 }
 
-IPv4Address::IPv4Address(uint32_t address ,uint32_t port){
+IPv4Address::IPv4Address(uint32_t address ,uint16_t port){
     bzero(&m_addr,sizeof(m_addr));
     m_addr.sin_family = AF_INET;
     m_addr.sin_port = htons(port);
@@ -273,6 +291,11 @@ void IPv4Address::setPort(int val){
 const sockaddr* IPv4Address::getAddr() const{
     return (sockaddr*)&m_addr;
 }
+
+sockaddr* IPv4Address::getAddr(){
+    return (sockaddr*)&m_addr; 
+}
+
 socklen_t IPv4Address::getAddrLen() const{
     return sizeof(m_addr);
 }
@@ -291,7 +314,7 @@ IPv6Address::IPv6Address(struct sockaddr_in6& addr):m_addr(addr){
 
 }
 
-IPv6Address::IPv6Address(const char* addr ,uint32_t port){
+IPv6Address::IPv6Address(const char* addr ,uint16_t port){
     bzero(&m_addr ,sizeof(m_addr));
     m_addr.sin6_family = AF_INET6;
     m_addr.sin6_port = htons(port);
@@ -301,6 +324,11 @@ IPv6Address::IPv6Address(const char* addr ,uint32_t port){
 const sockaddr* IPv6Address::getAddr() const{
     return (sockaddr*)&m_addr;
 }
+
+sockaddr* IPv6Address::getAddr(){
+    return (sockaddr*)&m_addr; 
+}
+
 socklen_t IPv6Address::getAddrLen() const{
     return sizeof(m_addr);
 }
@@ -403,6 +431,12 @@ static const size_t MAX_PATH_LEN = sizeof((sockaddr_un*)0)->sun_path -1;
 //     m_length = offsetof(sockaddr_un ,sun_path) + MAX_PATH_LEN;
 // }
 
+UnixAddress::UnixAddress() {
+    memset(&m_addr, 0, sizeof(m_addr));
+    m_addr.sun_family = AF_UNIX;
+    m_length = offsetof(sockaddr_un, sun_path) + MAX_PATH_LEN;
+}
+
 UnixAddress::UnixAddress(const struct sockaddr_un& addr,socklen_t socklen){
     bzero(&m_addr,sizeof(m_addr));
     m_addr = addr;
@@ -426,6 +460,11 @@ UnixAddress::UnixAddress(const std::string& path){
 const sockaddr* UnixAddress::getAddr() const {
     return (sockaddr*)&m_addr;
 }
+
+sockaddr* UnixAddress::getAddr(){
+    return (sockaddr*)&m_addr; 
+}
+
 socklen_t UnixAddress::getAddrLen() const {
     return m_length;
 }
@@ -450,6 +489,11 @@ UnkownAddress::UnkownAddress(const struct sockaddr& addr){
 const sockaddr* UnkownAddress::getAddr() const{
     return (sockaddr*)&m_addr;
 }
+
+sockaddr* UnkownAddress::getAddr(){
+    return (sockaddr*)&m_addr; 
+}
+
 socklen_t UnkownAddress::getAddrLen() const{
     return sizeof(m_addr);
 }

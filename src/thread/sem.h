@@ -2,11 +2,11 @@
 
 #include <pthread.h>
 #include <semaphore.h>
-#include <boost/noncopyable.hpp>
+#include "noncopyable.h"
 
 namespace fepoh{
 
-class Sem : public boost::noncopyable{
+class Sem : Noncopyable{
     public:
         Sem(int value = 0,int pshared = 0);
         ~Sem();

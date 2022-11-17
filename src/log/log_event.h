@@ -13,7 +13,8 @@ namespace fepoh{
 			typedef std::shared_ptr<LogEvent> ptr;
 		
 			LogEvent(const std::string& filePath,int32_t line,uint32_t elapse
-						,uint32_t threadId,uint32_t fiberId,uint64_t time,const std::string& threadName);
+						,uint32_t threadId,uint32_t fiberId,uint64_t time
+						,const std::string& threadName,const std::string& funcName = NULL);
 			~LogEvent();
 
 			const std::string& getFilePath() const {return m_filePath;}
@@ -22,6 +23,7 @@ namespace fepoh{
 			uint32_t getThreadId() const {return m_threadId;}
 			uint32_t getFiberId() const {return m_fiberId;}
 			uint32_t getTime() const {return m_time;}
+			const std::string& getFuncName() const {return m_funcName;}
 			const std::string& getThreadName() const {return m_threadName;}
 			//此处支持流式输出日志
 			std::stringstream& getSS(){return m_ss;}
@@ -32,6 +34,7 @@ namespace fepoh{
 			uint32_t m_threadId;			//线程ID
 			uint32_t m_fiberId;				//协程ID
 			uint64_t m_time;				//时间
+			std::string m_funcName;			//函数名
 			std::string m_threadName;		//线程名字
 			std::stringstream m_ss;			//日志内容字符流
 	};

@@ -14,7 +14,7 @@
 //格式为:FEPOH_LOG_DEBUG(logger) << "I'll think of you every step of the way.";
 #define FEPOH_LOG_LEVEL(logger,level)   \
     if(level>=logger->getLevel())        \
-        fepoh::LogEventWrap(fepoh::LogEvent::ptr(new fepoh::LogEvent(__FILE__,__LINE__,-1,fepoh::GetThreadId(),fepoh::GetFiberId(),::time(0),fepoh::GetThreadName())),logger,level).getSS()
+        fepoh::LogEventWrap(fepoh::LogEvent::ptr(new fepoh::LogEvent(__FILE__,__LINE__,-1,fepoh::GetThreadId(),fepoh::GetFiberId(),::time(0),fepoh::GetThreadName(),__FUNCTION__)),logger,level).getSS()
 
 #define FEPOH_LOG_DEBUG(logger) FEPOH_LOG_LEVEL(logger,fepoh::LogLevel::Level::DEBUG)
 #define FEPOH_LOG_INFO(logger)  FEPOH_LOG_LEVEL(logger,fepoh::LogLevel::Level::INFO)
@@ -25,7 +25,7 @@
 
 #define FEPOH_LOG_FORMAT(logger,level,...)  \
     if(level>=logger->getLevel())           \
-        fepoh::LogEventWrap(fepoh::LogEvent::ptr(new fepoh::LogEvent(__FILE__,__LINE__,-1,fepoh::GetThreadId(),fepoh::GetFiberId(),time(0),"fepoh")),logger,level).format(__VA_ARGS__);
+        fepoh::LogEventWrap(fepoh::LogEvent::ptr(new fepoh::LogEvent(__FILE__,__LINE__,-1,fepoh::GetThreadId(),fepoh::GetFiberId(),time(0),"fepoh",__FUNCTION__)),logger,level).format(__VA_ARGS__);
 
 //格式化输出
 //格式为:FEPOH_LOG_DEBUG1(logger,"i = %d ,str = %s",10,"I love zls three thousand times");

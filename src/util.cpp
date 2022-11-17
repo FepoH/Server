@@ -38,7 +38,11 @@ uint64_t GetCurTimeUs(){
     return tv.tv_sec * 1000 * 1000 + tv.tv_usec;
 }
 
-
+std::string ErrorToString(){
+    std::stringstream ss;
+    ss << "errno = " << errno << ":" << strerror(errno);
+    return ss.str();
+}
 
 } // namespace fepoh
 

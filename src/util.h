@@ -30,4 +30,6 @@ bool IsBaseType(const T& val){
     return false;
 }
 
+std::string ErrorToString();
+
 }//namespace

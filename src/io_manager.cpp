@@ -43,6 +43,7 @@ void IOManager::FdContext::triggerContext(Event ev){
     EventContext& ctx = getContext(ev);
     ctx.scheduler->schedule(ctx.fiber);
     ctx.scheduler = nullptr;
+    ctx.fiber = nullptr;
 }
 
 IOManager::IOManager(const std::string& name,size_t threadCount,bool use_caller)
@@ -129,7 +130,7 @@ int IOManager::addEvent(int fd,Event event,std::function<void()> cb ){
 
 int IOManager::delEvent(int fd,Event event){
     ReadLock lock1(m_mutex);
-    if(fd>=m_fdContexts.size()){
+    if(fd>=m_fdContexts.size() || fd < 0){
         FEPOH_LOG_WARN(s_log_system)<<"IOManager::delEvent error.fd > m_fdContexts.size(),fd = "
                     << fd << "m_fdContexts.size() = " << m_fdContexts.size();
         return -1;
@@ -158,7 +159,7 @@ int IOManager::delEvent(int fd,Event event){
 
 int IOManager::cancelEvent(int fd,Event event){
     ReadLock lock(m_mutex);
-    if(fd>=m_fdContexts.size()){
+    if(fd>=m_fdContexts.size() || fd < 0){
         FEPOH_LOG_WARN(s_log_system)<<"IOManager::delEvent error.fd > m_fdContexts.size(),fd = "
                     << fd << "m_fdContexts.size() = " << m_fdContexts.size();
         return -1;
@@ -189,7 +190,7 @@ int IOManager::cancelEvent(int fd,Event event){
 
 int IOManager::cancelAll(int fd){
     ReadLock lock1(m_mutex);
-    if(fd>=m_fdContexts.size()){
+    if(fd>=m_fdContexts.size() || fd < 0){
         FEPOH_LOG_ERROR(s_log_system)<<"IOManager::delEvent error.fd > m_fdContexts.size(),fd = "
                     << fd << "m_fdContexts.size() = " << m_fdContexts.size();
         return -1;
@@ -264,7 +265,6 @@ void IOManager::idle() {
             if(rt < 0 && errno == EINTR){
 
             }else{
-                FEPOH_LOG_DEBUG(s_log_system)<<"epoll wait timeout";
                 break;
             }
         }while(true);

@@ -5,11 +5,11 @@
 #include <memory>
 #include <thread>
 #include <pthread.h>
-#include <boost/noncopyable.hpp>
+#include "noncopyable.h"
 
 namespace fepoh{
 //互斥锁
-class Mutex{
+class Mutex {
     public:
         Mutex();
         ~Mutex();
@@ -22,31 +22,17 @@ class Mutex{
 //通过Lock对锁进行操作,有效防止发生未释放锁和连续锁几次的问题
 class MutexLock{
     public:
-        MutexLock(Mutex& mutex):m_mutex(mutex){
-            lock();
-        }
-        ~MutexLock(){
-            unlock();
-        }
-        void lock(){
-            if(!m_isLock){
-                m_mutex.lock();
-                m_isLock = true;
-            }
-        }
-        void unlock(){
-            if(m_isLock){
-                m_mutex.unlock();
-                m_isLock = false;
-            }
-        }
+        MutexLock(Mutex& mutex);
+        ~MutexLock();
+        void lock();
+        void unlock();
     private:
         Mutex& m_mutex;
         bool m_isLock = false;
 };
 
 //读写锁
-class RWMutex : public boost::noncopyable{
+class RWMutex : Noncopyable{
     public:
         RWMutex();
         ~RWMutex();
@@ -58,7 +44,7 @@ class RWMutex : public boost::noncopyable{
 };
 
 //读锁适配
-class ReadLock{
+class ReadLock {
     public:
         ReadLock(RWMutex& mutex);
         ~ReadLock();

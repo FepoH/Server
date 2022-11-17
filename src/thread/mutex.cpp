@@ -18,6 +18,25 @@ void Mutex::unlock(){
     pthread_mutex_unlock(&m_mutex);
 }
 
+MutexLock::MutexLock(Mutex& mutex):m_mutex(mutex){
+    lock();
+}
+MutexLock::~MutexLock(){
+    unlock();
+}
+void MutexLock::lock(){
+    if(!m_isLock){
+        m_mutex.lock();
+        m_isLock = true;
+    }
+}
+void MutexLock::unlock(){
+    if(m_isLock){
+        m_mutex.unlock();
+        m_isLock = false;
+    }
+}
+
 ReadLock::ReadLock(RWMutex& mutex):m_mutex(mutex){
     lock();
 }

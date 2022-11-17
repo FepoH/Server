@@ -141,9 +141,7 @@ retry:
             return -1;
         }else{
             //添加事件成功,陷入Hold状态
-            FEPOH_LOG_DEBUG(s_log_system) << "*************1";
             fepoh::Fiber::GetThis()->swapOutHold();
-            FEPOH_LOG_DEBUG(s_log_system) << "*************2";
             //从Hold状态返回,一下两种情况会返回
             //1.从定时器返回,取消的时候会触发事件
             //2.事件触发返回

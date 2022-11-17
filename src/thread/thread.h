@@ -1,13 +1,13 @@
 #pragma once
 
+#include "noncopyable.h"
 #include <pthread.h>
 #include <functional>
-#include <boost/noncopyable.hpp>
 #include <memory>
 
 namespace fepoh{
 
-    class Thread:public boost::noncopyable{
+    class Thread : Noncopyable{
         public:
             typedef std::shared_ptr<Thread> ptr;
 

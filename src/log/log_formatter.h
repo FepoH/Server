@@ -12,7 +12,7 @@
 
 //默认的日志格式
 //item的前面必须是%
-#define LOG_DEFAULT_FORMAT "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T%m%n"
+#define LOG_DEFAULT_FORMAT "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T[%i]%T%m%n"
 
 
 const size_t LOG_DEFAULT_SIZE = 2048; 

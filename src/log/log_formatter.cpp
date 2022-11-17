@@ -106,6 +106,13 @@ namespace fepoh{
 				out << logger->getName();
 			}
 	};
+	class FuncNameItem : public LogFormatter::FormatItem{
+		public:
+			FuncNameItem(const std::string& addContent = ""):FormatItem(addContent){}
+			void format(std::ostream& out,LogEvent::ptr event,LogLevel::Level level,std::shared_ptr<Logger> logger) override{
+				out << event->getFuncName();
+			}
+	};
 	
 	LogFormatter::LogFormatter(const std::string& pattern):m_pattern(pattern),m_isInit(false){
 		init();
@@ -120,7 +127,6 @@ namespace fepoh{
 		}
 	}
 	
-	//ToDo
 	//%d	%d%dd	%d{afd}
 	void LogFormatter::init(){
 		bool flag = false;
@@ -180,6 +186,7 @@ namespace fepoh{
        		XX('F', FiberIdItem),           //F:协程id
         	XX('N', ThreadNameItem),        //N:线程名称
 			XX('S', AddContentItem),		//添加字符内容
+			XX('i', FuncNameItem),		//添加字符内容
 #undef XX
     	};
 		if(!vctChStr.empty()){

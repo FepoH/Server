@@ -31,16 +31,16 @@ void test_hook(){
     iom.stop();
 }
 
-void test_io() {
+void test_io(int port) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 
     sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(80);
+    addr.sin_port = htons(port);
     inet_pton(AF_INET, "110.242.68.66", &addr.sin_addr.s_addr);
 
-    FEPOH_LOG_INFO(s_log_system) << "begin connect";
+    FEPOH_LOG_INFO(s_log_system) << "begin connect " << errno;
     int rt = connect(sock, (const sockaddr*)&addr, sizeof(addr));
     FEPOH_LOG_INFO(s_log_system) << "connect rt=" << rt << " errno=" << errno;
 
@@ -58,24 +58,29 @@ void test_io() {
 
     std::string buff;
     buff.resize(4096);
-
+    FEPOH_LOG_INFO(s_log_system) << "before recv " << errno << "  " <<strerror(errno);
     rt = recv(sock, &buff[0], buff.size(), 0);
-    FEPOH_LOG_INFO(s_log_system) << "recv rt=" << rt << " errno=" << errno;
-
+    FEPOH_LOG_INFO(s_log_system) << "recv rt=" << rt << " errno=" << errno << "  " <<strerror(errno) ;
+    
     if(rt <= 0) {
         return;
     }
 
     buff.resize(rt);
     FEPOH_LOG_INFO(s_log_system) << buff;
+
 }
 
 
-int main(){
+int main(int argc ,char * argv[]){
     
     //test_hook();
+    int port = atoi(argv[1]);
     fepoh::IOManager iom;
-    iom.schedule(test_io);
+    iom.schedule([port](){
+        FEPOH_LOG_DEBUG(s_log_system) << "at task";
+        test_io(port);
+    });
     iom.start();
     //test_io();
     return 0;

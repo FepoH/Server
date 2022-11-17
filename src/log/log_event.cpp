@@ -4,9 +4,10 @@
 namespace fepoh{
 	
 	LogEvent::LogEvent(const std::string& filePath,int32_t line,uint32_t elapse
-						,uint32_t threadId,uint32_t fiberId,uint64_t time,const std::string& threadName)
+						,uint32_t threadId,uint32_t fiberId,uint64_t time
+						,const std::string& threadName,const std::string& funcName)
 			:m_filePath(filePath),m_line(line),m_elapse(elapse),m_threadId(threadId)
-			,m_fiberId(fiberId),m_time(time),m_threadName(threadName){
+			,m_fiberId(fiberId),m_time(time),m_threadName(threadName),m_funcName(funcName){
 		m_ss.str("");			
 	}
 
