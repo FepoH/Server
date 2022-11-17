@@ -50,7 +50,7 @@ set(LIB_SRC
     src/fd_manager.cpp
     src/address.cpp
     src/socket_.cpp
-    src/bytearray_.cpp
+    src/bytearray.cpp
     src/http/http.cpp
     src/http/http_parser.cpp
     src/http/http_parser/http_nodejs_parser.c
