@@ -1,6 +1,17 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-08 20:30:04
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 02:54:16
+ * @FilePath: /fepoh/workspace/fepoh_server/src/fiber.h
+ * @Description: 协程封装,适配IOManager
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
-
-#include "parameter.h"
 
 #include <memory>
 #include <string>
@@ -20,6 +31,10 @@ namespace fepoh{
 class Fiber : public std::enable_shared_from_this<Fiber>{
 public:
     typedef std::shared_ptr<Fiber> ptr;
+    /**
+     * @description: 协程状态信息
+     * @return {*}
+     */    
     enum State{
         INIT=0,         //初始化状态
         HOLD,           //暂停状态
@@ -27,26 +42,79 @@ public:
         EXCEPT,         //异常状态
         TERM            //结束状态
     };
-    //默认非use_caller
+
+    /**
+     * @description: 约定:
+     *  use_caller:     main_fiber != root_fiber<----->other_fiber  使用root_fiber管理协程
+     *  非use_caller:   main_fiber  = root_fiber<----->other_fiber  使用main_fiber管理协程
+     *  以下以管理协程指代,须区分所指
+     */    
+
+    /**
+     * @description: 构造函数
+     * @return {*}
+     * @param {function<void()>} cb 回调函数
+     * @param {uint32_t} stacksize 栈大小
+     * @param {bool} use_caller 该协程是否纳入调度器
+     */    
     Fiber(std::function<void()> cb,uint32_t stacksize = 0,bool use_caller = false);
     ~Fiber();
-    //切换root fiber
+    /**
+     * @description: 协程切入:用于管理协程---->other_fiber切换
+     * @return {*}
+     */    
     void swapIn();
+    /**
+     * @description: 协程切出:用于other_fiber<---->管理协程切换
+     * @return {*}
+     */    
     void swapOut();
+    /**
+     * @description: 协程以暂停状态切出:用于other_fiber---->管理协程切换
+     * @return {*}
+     */    
     void swapOutHold();
-    //切换main fiber
+    /**
+     * @description: 协程切入:用于use_caller:main_fiber----->root_fiber切换
+     * @return {*}
+     */    
     void call();
+    /**
+     * @description: 协程切出:用于use_caller协程:root_fiber----->main_fiber切换
+     * @return {*}
+     */    
     void back();
+    /**
+     * @description: 协程以暂停状态切出:root_fiber----->main_fiber切换
+     * @return {*}
+     */    
     void backHold();
-    //获取main协程
+    /**
+     * @description: 获取当前线程的管理协程
+     * @return {*}
+     */    
     static Fiber::ptr GetMainFiber();
-    //获取fiberID
+    /**
+     * @description: 获取协程id
+     * @return {*}
+     */    
     static uint32_t GetFiberId();
-    //获取当前执行协程
+    /**
+     * @description: 获取当前协程:当此时没有main_fiber时,创建main_fiber(此时相当于单例)
+     *                           当此时有main_fiber协程时,获取当前执行协程
+     * @return {*}
+     */    
     static Fiber::ptr GetThis();
-    //设置当前执行协程
+    /**
+     * @description: 设置当前协程
+     * @return {*}
+     * @param {Fiber*} val 协程
+     */    
     static void SetThis(Fiber* val);
-    //对于非use_caller的线程,返回为main协程,否则返回线程root协程
+    /**
+     * @description: 
+     * @return {*}
+     */    
     static Fiber::ptr GetThreadMainFiber();
 public:
     //获取协程id
@@ -56,11 +124,8 @@ public:
     //获取协程执行状态
     State getState() const {return m_state;}
     void setState(State val) {m_state = val;}
-    //用于测试...
-    // static void test(const std::string& str = "");
-    // static void test(Fiber::ptr fiber);
 private:
-    //main协程为单例模式
+    //main_fiber为单例模式
     Fiber();
     //不使用调度器api
     static void Run();
@@ -76,3 +141,5 @@ private:
 };
 
 }//namespace
+
+//root_fiber -->manager_fiber

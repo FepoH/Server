@@ -1,12 +1,26 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 02:49:31
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 03:14:33
+ * @FilePath: /fepoh/workspace/fepoh_server/src/schedule_manager.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "schedule_manager.h"
 #include "log/log.h"
 #include "macro.h"
 #include "hook.h"
+#include "config.h"
 
 namespace fepoh{
 
 static thread_local Fiber::ptr t_root_fiber = nullptr;       //用于切换的调度器
-//执行流程的线程是否被纳入协程调度器,用于多调度器模式
+//是否已经被use_caller的线程
 bool ScheduleManager::has_use_caller = false;   
 static thread_local ScheduleManager* t_scheduler = nullptr; 
 

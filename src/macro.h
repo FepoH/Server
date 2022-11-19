@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 21:50:12
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-19 21:52:34
+ * @LastEditTime: 2022-11-20 01:23:58
  * @FilePath: /fepoh/workspace/fepoh_server/src/macro.h
  * @Description: 
  * 
@@ -28,9 +28,10 @@
 
 //断言
 #define FEPOH_ASSERT(condi)  \
-    if(FEPOH_UNLIKELY(!(condi)))    \
+    if(FEPOH_UNLIKELY(!(condi))){\
         FEPOH_LOG_ERROR(FEPOH_LOG_NAME("system")) << "BackTrace:" << fepoh::BackTrace();   \
-        assert(false);
+        assert(false);\
+    }
 
 #define FEPOH_ASSERT1(condi,descri)  \
     if(FEPOH_UNLIKELY(!(condi))){    \

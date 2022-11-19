@@ -1,13 +1,26 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-10 00:37:26
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 03:15:42
+ * @FilePath: /fepoh/workspace/fepoh_server/src/schedule_manager.h
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
 
 #include "fiber.h"
 #include "thread/mutex.h"
 #include "thread/thread.h"
 #include "thread/sem.h"
+#include "noncopyable.h"
 
 #include <string>
-#include <boost/noncopyable.hpp>
-#include <atomic>   //原子量,进行多线程操作
+#include <atomic>
 #include <functional>
 #include <vector>
 #include <list>
@@ -15,7 +28,11 @@
 
 namespace fepoh{
 
-//同一时刻只能存储回调函数和协程的其中一种
+/**
+ * @description: 任务类,
+ * @return {*}
+ */
+//TODO,需要优化,不把回调函数返回成Fiber,这样性能损失过大,协程执行一堆操作,而回调函数拿来即可用
 class Task{
     public:
         friend class ScheduleManager;
@@ -39,7 +56,7 @@ class Task{
 };
 
 //执行流程的线程只能被一个调度器纳入.
-class ScheduleManager : public boost::noncopyable{
+class ScheduleManager : public Noncopyable{
     public:
         typedef std::shared_ptr<ScheduleManager> ptr;
 

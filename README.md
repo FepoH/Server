@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 17:32:26
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-19 23:31:23
+ * @LastEditTime: 2022-11-20 03:08:20
  * @FilePath: /fepoh/workspace/fepoh_server/README.md
  * @Description: 
  * 
@@ -44,14 +44,17 @@ Config::LoadFromJson("log.json");
 ### 模型
 ```
 //配置模块模型
-Json文件->key------>       ==      <------key<-Config
+
+Json文件->key------>        ==     <------key<-Config
           |                                |
           |        -----tostring-------    |
-          |        |                  |    |
+          v        |                  |    v
       std::string---      Json        --- type
                    |                  |
                    -----fromstring-----
+
 //自定义结构解析模型
+
             ---->to_json()-------       ----->Json::dump()-----
             |                   |       |                     |
 self_struct--                   --Json --                     --std::string
@@ -84,7 +87,35 @@ uint64_t s_buffer_size = g_buffer_size->getValue();
 + 支持压缩数据(ZigZag算法)
 + 可自适应机器大小端
 
-## 协程模块
+## 调度器模块
+### 协程模型
+```C++
+//若不适用IOManager,自己创建的协程都是非use_caller,但本人没有实现单独api调用
+//非use_caller:
+IOManager::t_root_fiber = Fiber::t_main_fiber
+
+             ------->swapIn()--------
+             |                      |
+t_main_fiber--                      ---other_fiber
+             |                      |
+             -------swapOut()<-------
+             |                      |
+             -----swapOutHold()<-----
+//use_caller
+IOManager::t_root_fiber != Fiber::t_main_fiber
+//执行call后,t_root_fiber处于循环中,此时main_fiber暂停,t_root_fiber充当非use_caller中的main_fiber的角色
+//back后,t_main_fiber继续执行主流程
+
+             ----->call()------              ----->swapIn()------
+             |                |              |                  |
+t_main_fiber--                --t_root_fiber--                  ---other_fiber
+             |                |              |                  |
+             -----back()<------              -----swapOut()<-----
+             |                |              |                  |
+             ---backHold()<----              ---swapOutHold()<---
+
+```
+
 
 ## json C++
 

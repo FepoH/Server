@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 20:19:21
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-19 23:54:04
+ * @LastEditTime: 2022-11-20 02:01:08
  * @FilePath: /fepoh/workspace/fepoh_server/src/thread/thread.cpp
  * @Description: 
  * 
@@ -56,6 +56,8 @@ Thread::~Thread(){
 
 void Thread::join(){
     if(m_thread){
+        FEPOH_LOG_INFO(s_log_system) << "Thread join.thread name = " << m_name 
+                                     << ",thread id = " << m_id;
         int rt = pthread_join(m_thread,nullptr);
         if(rt){
             FEPOH_ASSERT1(false,"Thread::Thread error.pthread_join error,rt = " + std::to_string(rt) + "." + strerror(rt));
@@ -66,6 +68,8 @@ void Thread::join(){
 
 void Thread::detach(){
     if(m_thread){
+        FEPOH_LOG_INFO(s_log_system) << "Thread detach.thread name = " << m_name 
+                                     << ",thread id = " << m_id;
         int rt = pthread_detach(m_thread);
         if(rt){
             FEPOH_ASSERT1(false,"Thread::Thread error.pthread_detach error,rt = " + std::to_string(rt) + ".");
@@ -95,13 +99,14 @@ void Thread::SetName(const std::string& name){
 void* Thread::Run(void* arg){
     //正式进入线程
     Thread* cur = (Thread*)arg;
-    
     t_thread = cur;
     SetName(cur->m_name);
     cur->m_id = fepoh::GetThreadId();
     std::function<void()> cb;
     cb.swap(cur->m_cb);
     cur->m_sem.post();
+    FEPOH_LOG_INFO(s_log_system) << "Thread run.thread name = " << cur->m_name
+                                    << ",thread id = " << cur->m_id;
     try{
         cb();
     }catch(...){

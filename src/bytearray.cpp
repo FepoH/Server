@@ -177,7 +177,6 @@ bool ByteArray::writeToFile(const std::string& name) const {
     int64_t read_size = getReadSize();
     int64_t pos = m_readSize;
     Node* cur = m_read;
-    std::cout << read_size << "-" << m_readSize << cur << std::endl;
     while(read_size > 0) {
         int diff = pos % m_baseSize;
         uint64_t len = read_size < (m_baseSize - diff) ? read_size : m_baseSize - diff;

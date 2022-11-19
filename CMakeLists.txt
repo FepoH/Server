@@ -87,7 +87,9 @@ fepoh_add_executable(test_log "tests/test_log.cpp" fepoh_server "${LIB_LIB}")
 fepoh_add_executable(test_config "tests/test_config.cpp" fepoh_server "${LIB_LIB}")
 fepoh_add_executable(test_json "tests/test_json.cpp" fepoh_server "${LIB_LIB}")
 fepoh_add_executable(test_thread "tests/test_thread.cpp" fepoh_server "${LIB_LIB}")
+# test_fiber.cpp失效,通过IOManager测试Fiber
 # fepoh_add_executable(test_fiber "tests/test_fiber.cpp" fepoh_server "${LIB_LIB}")
+
 # fepoh_add_executable(test_scheduler "tests/test_scheduler.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_timer "tests/test_timer.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_iomanager "tests/test_iomanager.cpp" fepoh_server "${LIB_LIB}")

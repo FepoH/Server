@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 21:27:31
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-19 21:53:00
+ * @LastEditTime: 2022-11-20 01:24:48
  * @FilePath: /fepoh/workspace/fepoh_server/src/util.cpp
  * @Description: 
  * 
@@ -63,6 +63,10 @@ std::string BackTrace(int size,int skip,const std::string& prefix){
     BackTrace(vecStr,size,skip + 1);
     std::stringstream ss;
     for(auto& item:vecStr){
+        //不知到为啥,里面含有很多空语句
+        if(item.empty()){
+            continue;
+        }
         ss << prefix << item << std::endl;
     }
     return ss.str();
@@ -84,6 +88,7 @@ void BackTrace(std::vector<std::string>& vecStr,int size,int skip){
         vecStr.push_back(strings[j]);
     }
     free(strings);
+    
 }
 
 
