@@ -6,12 +6,16 @@
 
 namespace fepoh{
 
-
-static std::string LogDefineDump(const LogDefine& ld){
+std::string LogDefineDump(const LogDefine& ld){
     Json js(ld);
     return js.dump();
 }
 
+
+/**
+ * @description: 自定义格式与Json互转
+ * @return {*}
+ */
 template<>
 class LexicalCast<std::string,LogDefine>{
 public:
@@ -41,6 +45,7 @@ public:
             }else{
                 continue;
             }
+            //若不包含level,format,则使用默认级别
             apd.level = item.contains("level") ? LogLevel::FromString(item["level"].get<std::string>()) : LogLevel::DEBUG;
             apd.format = item.contains("format") ? item["format"].get<std::string>() : LOG_DEFAULT_FORMAT; 
             ld.appenders.push_back(apd);
@@ -50,7 +55,7 @@ public:
         }
         ld.name = root["name"].get<std::string>();
         ld.level = root.contains("level") ? LogLevel::FromString(root["level"].get<std::string>()) : LogLevel::DEBUG;
-        //std::cout<<"----" <<LogDefineDump(ld) <<std::endl;
+        //std::cout << LogDefineDump(ld) << std::endl;
         return ld;
     }
 };
@@ -93,7 +98,10 @@ public:
 };
 
 //周乐莎 99.11.15
-
+/**
+ * @description: 全局日志变量
+ * @return {*}
+ */
 ConfigVar<std::set<LogDefine> >::ptr g_logs_define
         = Config::Lookup<std::set<LogDefine> >(std::set<LogDefine>(),"logs","logs config");
 
@@ -107,11 +115,9 @@ struct __LogInit__{
     __LogInit__(){
         g_logs_define->addListener([](const std::set<LogDefine>& old_value,
                     const std::set<LogDefine>& new_value){
-            LogManager::GetInstance()->clrLogger();
             FEPOH_LOG_DEBUG(g_log_root) <<"logs config cb";
             for(auto& i : new_value) {
-                fepoh::Logger::ptr logger;
-                logger.reset(new Logger(i.name));
+                fepoh::Logger::ptr logger = LogManager::GetInstance()->getLogger(i.name);
                 logger->setLevel(i.level);
                 logger->clrAppender();
                 for(auto& a : i.appenders) {
@@ -135,17 +141,13 @@ struct __LogInit__{
                     }
                     logger->addAppender(ap);
                 }
-                LogManager::GetInstance()->addLogger(logger);
             }
-            // for(auto& i : old_value) {
-            //     auto it = new_value.find(i);
-            //     if(it == new_value.end()) {
-            //         //删除logger
-            //         auto logger = FEPOH_LOG_NAME(i.name);
-            //         logger->setLevel((LogLevel::Level)0);
-            //         logger->clrAppender();
-            //     }
-            // }
+            for(auto& i : old_value) {
+                bool flag = LogManager::GetInstance()->hasLogger(i.name);
+                if(!flag){
+                    LogManager::GetInstance()->delLogger(i.name);
+                }
+            }
             
         });
         //Config::LoadFromJson("../../resource/config/log.json");

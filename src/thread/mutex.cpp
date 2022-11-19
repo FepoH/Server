@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-10 09:09:28
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-19 19:51:55
+ * @FilePath: /fepoh/workspace/fepoh_server/src/thread/mutex.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "mutex.h"
 
 namespace fepoh{

@@ -1,12 +1,15 @@
 /*
- * @Author: Fepo_H fepo_h@163.com
- * @Date: 2022-06-19 20:34:07
- * @LastEditors: Fepo_H fepo_h@163.com
- * @LastEditTime: 2022-06-30 11:04:27
- * @FilePath: /admin/workspace/fepoh_server/fepoh/config.h
+ * @Author: fepo_h
+ * @Date: 2022-11-19 17:46:30
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-19 20:13:07
+ * @FilePath: /fepoh/workspace/fepoh_server/src/config.h
  * @Description: 
  * 
- * Copyright (c) 2022 by Fepo_H fepo_h@163.com, All Rights Reserved. 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
  */
 #pragma once
 #include "log/log.h"
@@ -32,14 +35,12 @@
 #include <unordered_set>
 
 using Json = nlohmann::json;
+
 static fepoh::Logger::ptr g_log_root=FEPOH_LOG_NAME("root");
 
 namespace fepoh{
 
 /*
-    Json库为nlohmann/json,github搜索即可看见
-    本项目使用Json作为配置.同样可以采取YAML作为配置,底部注释内容即为YAML内容(未完成),若需要可以参考本文件最末尾
-
 问题:
     1.在调用tostring时,会导致基础类型转为string类型
         例如:1--tostring-->"1",而yaml不会出现此类问题
@@ -55,14 +56,22 @@ namespace fepoh{
 class ConfigVarBase{
 public:
     typedef std::shared_ptr<ConfigVarBase> ptr;
-
+    /**
+     * @description: 构造函数
+     * @return {*}
+     * @param {string&} name 配置名称
+     * @param {string&} description 简短描述
+     */    
     ConfigVarBase(const std::string& name,const std::string& description = "");
 
     virtual ~ConfigVarBase(){}
 
     const std::string& getName() const {return m_name;}
     const std::string& getDescription() const {return m_description;}
-    //获取类型名称
+    /**
+     * @description: 获取类型名称
+     * @return {*}
+     */
     virtual std::string getTypeName() = 0;
     //变量转字符串
     virtual const std::string tostring() = 0;
@@ -74,6 +83,12 @@ protected:
     std::string m_description;  //配置描述
 };
 
+/**
+ * @description: 转换基类
+ * @return {*}
+ * @param SRC 源类型
+ * @param DST 目标类型
+ */
 template<class SRC,class DST>
 class LexicalCast{
 public:
@@ -82,7 +97,10 @@ public:
     }
 };
 
-//vector
+/**
+ * @description: vector<-->std::string
+ * @return {*}
+ */
 template<class T>
 class LexicalCast<std::string,std::vector<T> >{
 public:
@@ -118,7 +136,10 @@ public:
         return "";
     }
 };
-//list
+/**
+ * @description: list<-->std::string
+ * @return {*}
+ */
 template<class T>
 class LexicalCast<std::string,std::list<T> >{
 public:
@@ -139,7 +160,7 @@ class LexicalCast<std::list<T>,std::string >{
 public:
     std::string operator()(const std::list<T>& val){
         if(!val.empty()){
-            if(IsBaseType(val[0])){
+            if(IsBaseType(*val.begin())){
                 Json res(val);
                 return res.dump();
             }else{
@@ -152,17 +173,13 @@ public:
             }
         }
         return "";
-
-        // std::list<std::string> listStr;
-        // for(auto item:val){
-        //     listStr.push_back(LexicalCast<T,std::string>()(item));
-        // }
-        // Json res(listStr);
-        // return res.dump();
     }
 };
 
-//set
+/**
+ * @description: set<-->std::string
+ * @return {*}
+ */
 template<class T>
 class LexicalCast<std::string,std::set<T> >{
 public:
@@ -199,17 +216,13 @@ public:
             }
         }
         return "";
-
-        // std::vector<std::string> vecStr;
-        // for(auto item:val){
-        //     vecStr.push_back(LexicalCast<T,std::string>()(item));
-        // }
-        // Json res(vecStr);
-        // return res.dump();
     }
 };
 
-//unordered_set
+/**
+ * @description: unordered_set<-->std::string
+ * @return {*}
+ */
 template<class T>
 class LexicalCast<std::string,std::unordered_set<T> >{
 public:
@@ -243,17 +256,13 @@ public:
             }
         }
         return "";
-        //同上
-        // std::vector<std::string> vecStr;
-        // for(auto item:val){
-        //     vecStr.push_back(LexicalCast<T,std::string>()(item));
-        // }
-        // Json res(vecStr);
-        // return res.dump();
     }
 };
 
-//map
+/**
+ * @description: map<-->std::string
+ * @return {*}
+ */
 template<class T>
 class LexicalCast<std::string,std::map<std::string,T> >{
 public:
@@ -291,17 +300,13 @@ public:
             }
         }
         return "";
-
-        // std::map<std::string,std::string> mapStrT;
-        // for(auto it=val.begin();it!=val.end();++it){
-        //     mapStrT[it->first] = LexicalCast<T,std::string>()(it->second);
-        // }
-        // Json res(mapStrT);
-        // return res.dump();
     }
 };
 
-//unordered_map
+/**
+ * @description: unordered_map<-->std::string
+ * @return {*}
+ */
 template<class T>
 class LexicalCast<std::string,std::unordered_map<std::string,T> >{
 public:
@@ -340,13 +345,6 @@ public:
             }
         }
         return "";
-        // std::unordered_map<std::string,std::string> umapStrStr;
-        // for(auto it=val.begin();it!=val.end();++it){
-        //     umapStrStr[it->first] = LexicalCast<T,std::string>()(it->second);
-        //     //umapStrStr[it->first] = LexicalCast<T,std::string>()(it->second);
-        // }
-        // Json res(umapStrStr);
-        // return res.dump();
     }
 };
 
@@ -356,8 +354,20 @@ template<class T ,class ToStr = LexicalCast<T,std::string>
 class ConfigVar : public ConfigVarBase{
 public:
     typedef std::shared_ptr<ConfigVar> ptr;
+    /**
+     * @description: 回调函数
+     * @return {*}
+     * @param {T&} old_val
+     * @param {T&} new_val
+     */    
     typedef std::function<void(const T& old_val,const T& new_val)> ListenerFunc;
-
+    /**
+     * @description: 构造函数
+     * @return {*}
+     * @param {T&} value 配置值
+     * @param {string&} name 配置名称
+     * @param {string} description 配置描述
+     */    
     ConfigVar(const T& value,const std::string& name,const std::string description)
         :m_value(value),ConfigVarBase(name,description){
 
@@ -400,6 +410,7 @@ public:
     bool fromstring(const std::string& val) override {
         try{
             T new_value = FromStr()(val);
+            //此处调用回调函数
             setValue(new_value);
             return true;
         }catch(std::exception& e){
@@ -408,14 +419,22 @@ public:
         }
         return false;
     }
-
+    /**
+     * @description: 添加回调函数,当值发生改变时,调用回调函数
+     * @return {*}
+     * @param {ListenerFunc&} func
+     */    
     uint64_t addListener(const ListenerFunc& func){
         WriteLock lock(m_mutex);
         static uint64_t index = 0;
         m_listeners.insert(std::make_pair(index,func));
         return index++;
     }
-
+    /**
+     * @description: 删除回调函数
+     * @return {*}
+     * @param {uint64_t} index
+     */    
     void delListender(const uint64_t index){
         WriteLock lock(m_mutex);
         auto it = m_listeners.find(index);
@@ -423,12 +442,19 @@ public:
             m_listeners.erase(it);
         }
     }
-
+    /**
+     * @description: 清空回调函数
+     * @return {*}
+     */    
     void clrListener(){
         WriteLock lock(m_mutex);
         m_listeners.clear();
     }
-
+    /**
+     * @description: 获取回调函数
+     * @return {*}
+     * @param {uint64_t} index
+     */    
     ListenerFunc getListener(const uint64_t index){
         ReadLock lock(m_mutex);
         return m_listeners[index];
@@ -439,20 +465,42 @@ private:
     std::map<uint64_t,ListenerFunc> m_listeners;
     T m_value;      //值
 };
-
+/**
+ * @description: 配置管理
+ * @return {*}
+ */
 class Config{
 public:
-    //加载Json文件
+    /**
+     * @description: 加载目录,只支持Json文件
+     * @return {*}
+     * @param {string&} path 路径
+     */    
+    static bool LoadFromDir(const std::string& path);
+    /**
+     * @description: 通过文件加载配置
+     * @return {*}
+     * @param {string&} filepath
+     */    
     static void LoadFromJson(const std::string& filepath);
-    //添加配置
+    /**
+     * @description: 添加配置
+     * @return {*}
+     */    
     template<class T>
     static typename ConfigVar<T>::ptr Lookup(const T& val,
     const std::string name,const std::string& discription = ""){
+        if(name.find_first_not_of("abcdefghikjlmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._012345678")
+            != std::string::npos) {
+            FEPOH_LOG_ERROR(g_log_root) << "Config invalid name: " << name;
+            return nullptr;
+        }
         ReadLock lock(m_mutex);
         auto it = GetData().find(name);
         if(it != GetData().end()){
             FEPOH_LOG_ERROR(g_log_root) << "Config::Lookup error. The value:"<<name <<" is already exist";
-            return std::dynamic_pointer_cast<ConfigVar<T>>(GetData()[name]);
+            return 0;
+            //return std::dynamic_pointer_cast<ConfigVar<T>>(GetData()[name]);
         }
         typename ConfigVar<T>::ptr var(new ConfigVar<T>(val,name,discription));
         lock.unlock();
@@ -460,7 +508,10 @@ public:
         GetData()[name] = var;
         return var;
     }
-    //查找配置
+    /**
+     * @description: 查找配置
+     * @return {*} 失败返回nullptr
+     */    
     template<class T>
     static typename ConfigVar<T>::ptr Lookup(const std::string& name){
         ReadLock lock(m_mutex);
@@ -470,7 +521,10 @@ public:
         }
         return nullptr;
     }
-    //查找配置,返回基类
+    /**
+     * @description: 查找配置
+     * @return {*} 失败返回nullptr,成功返回基类指针
+     */   
     static ConfigVarBase::ptr LookupBase(const std::string& name){
         ReadLock lock(m_mutex);
         auto it = GetData().find(name);
@@ -479,6 +533,10 @@ public:
         }
         return it->second;
     }
+    /**
+     * @description: 格式化输出,方便debug
+     * @return {*}
+     */    
     static std::string dump();
 private:
     static RWMutex m_mutex;

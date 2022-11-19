@@ -22,18 +22,18 @@ ByteArray::Node::~Node() {
     }
 }
 
-ByteArray::ByteArray(size_t base_size)
+ByteArray::ByteArray(size_t base_size,uint8_t endian)
     :m_baseSize(base_size)
     ,m_capacity(base_size)
     ,m_size(0)
     ,m_readSize(0)
-    ,m_endian((uint8_t)BIG_ENDIAN)
+    ,m_endian(endian)
     ,m_root(new Node(base_size))
     ,m_write(m_root)
     ,m_read(m_root) {
 }
 
-//TODO
+
 ByteArray::~ByteArray() {
     Node* tmp = m_root;
     m_read = nullptr;
@@ -45,9 +45,9 @@ ByteArray::~ByteArray() {
 }
 
 void ByteArray::clear() {
-    m_readSize = 0;
     m_capacity = m_baseSize;
     m_size = 0;
+    m_readSize = 0;
     Node* tmp = m_root->next;
     while(tmp) {
         m_write = tmp;
@@ -94,7 +94,6 @@ void ByteArray::read(void* buf, size_t size) {
     if(size > getReadSize()) {
         throw std::out_of_range("not enough len");
     }
-
     size_t npos = m_readSize % m_baseSize;
     size_t ncap = m_baseSize - npos;
     size_t bpos = 0;
@@ -175,7 +174,6 @@ bool ByteArray::writeToFile(const std::string& name) const {
             << " error , errno=" << errno << " errstr=" << strerror(errno);
         return false;
     }
-
     int64_t read_size = getReadSize();
     int64_t pos = m_readSize;
     Node* cur = m_read;

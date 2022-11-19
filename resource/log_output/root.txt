@@ -40,3 +40,9 @@
 2022-11-01 20:34:05	11837	UNKOWN	0	ERROR	root	/home/fepoh/workspace/fepoh_server/./src/config.h:454	Config::Lookup error. The value is already exist
 2022-11-01 20:34:05	11837	UNKOWN	0	DEBUG	root	/home/fepoh/workspace/fepoh_server/tests/test_config.cpp:86	wefg11111111111111111
 2022-11-01 20:34:05	11837	UNKOWN	0	DEBUG	root	/home/fepoh/workspace/fepoh_server/tests/test_config.cpp:87	10000
+2022-11-19 20:03:28	53318	UNKOWN	0	[DEBUG]	[root]	tests/test_config.cpp:90	[main]	wefg11111111111111111
+2022-11-19 20:03:28	53318	UNKOWN	0	[DEBUG]	[root]	tests/test_config.cpp:91	[main]	10
+2022-11-19 20:13:43	54921	UNKOWN	0	[DEBUG]	[root]	tests/test_config.cpp:90	[main]	wefg11111111111111111
+2022-11-19 20:13:43	54921	UNKOWN	0	[DEBUG]	[root]	tests/test_config.cpp:91	[main]	8080
+2022-11-19 20:16:15	55070	UNKOWN	0	[DEBUG]	[root]	tests/test_config.cpp:91	[main]	wefg11111111111111111
+2022-11-19 20:16:15	55070	UNKOWN	0	[DEBUG]	[root]	tests/test_config.cpp:92	[main]	8080

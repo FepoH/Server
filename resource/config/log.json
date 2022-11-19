@@ -2,16 +2,16 @@
   "logs": [
     {
       "name": "root",
-      "level": "warn",
+      "level": "debug",
       "appenders": [
         {
           "type": 0,
-          "level": "warn",
+          "level": "debug",
           "format": "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T[%i]%T%m%n"
         },
         {
           "type": 1,
-          "level": "warn",
+          "level": "debug",
           "format": "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T[%i]%T%m%n",
           "filepath": "../resource/log_output/root.txt"
         }
@@ -19,16 +19,16 @@
     },
     {
       "name": "system",
-      "level": "warn",
+      "level": "debug",
       "appenders": [
         {
           "type": 0,
-          "level": "warn",
+          "level": "debug",
           "format": "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T[%i]%T%m%n"
         },
         {
           "type": 1,
-          "level": "warn",
+          "level": "debug",
           "format": "%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T[%i]%T%m%n",
           "filepath": "../resource/log_output/system.txt"
         }
@@ -36,7 +36,8 @@
     }
   ],
   "system":[
-    {"port":10000}
+    {"port":8080}
   ]
+  
 }
 

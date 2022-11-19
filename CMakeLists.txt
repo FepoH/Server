@@ -48,20 +48,20 @@ set(LIB_SRC
     src/io_manager.cpp
     src/hook.cpp
     src/fd_manager.cpp
-    src/address.cpp
-    src/socket_.cpp
+    # src/address.cpp
+    # src/socket_.cpp
     src/bytearray.cpp
-    src/http/http.cpp
-    src/http/http_parser.cpp
-    src/http/http_parser/http_nodejs_parser.c
-    src/tcp_server.cpp
-    src/stream.cpp
-    src/socket_stream.cpp
-    src/http/http_session.cpp
-    src/http/http_server.cpp
-    src/http/servlet.cpp
-    src/http/http_connection.cpp
-    src/uri.cpp
+    # src/http/http.cpp
+    # src/http/http_parser.cpp
+    # src/http/http_parser/http_nodejs_parser.c
+    # src/tcp_server.cpp
+    # src/stream.cpp
+    # src/socket_stream.cpp
+    # src/http/http_session.cpp
+    # src/http/http_server.cpp
+    # src/http/servlet.cpp
+    # src/http/http_connection.cpp
+    # src/uri.cpp
 )
 
 
@@ -84,9 +84,9 @@ function(fepoh_add_executable exe_name "src_file" dependencies link_lib)
 endfunction()
 
 fepoh_add_executable(test_log "tests/test_log.cpp" fepoh_server "${LIB_LIB}")
-# fepoh_add_executable(test_config "tests/test_config.cpp" fepoh_server "${LIB_LIB}")
-# fepoh_add_executable(test_json "tests/test_json.cpp" fepoh_server "${LIB_LIB}")
-# fepoh_add_executable(test_thread "tests/test_thread.cpp" fepoh_server "${LIB_LIB}")
+fepoh_add_executable(test_config "tests/test_config.cpp" fepoh_server "${LIB_LIB}")
+fepoh_add_executable(test_json "tests/test_json.cpp" fepoh_server "${LIB_LIB}")
+fepoh_add_executable(test_thread "tests/test_thread.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_fiber "tests/test_fiber.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_scheduler "tests/test_scheduler.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_timer "tests/test_timer.cpp" fepoh_server "${LIB_LIB}")
@@ -95,7 +95,7 @@ fepoh_add_executable(test_log "tests/test_log.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_address "tests/test_address.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_socket "tests/test_socket.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_client "tests/test_client.cpp" fepoh_server "${LIB_LIB}")
-# fepoh_add_executable(test_bytearray "tests/test_bytearray.cpp" fepoh_server "${LIB_LIB}")
+fepoh_add_executable(test_bytearray "tests/test_bytearray.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_http_parser "tests/test_http_parser.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_tcp_server "tests/test_tcp_server.cpp" fepoh_server "${LIB_LIB}")
 # fepoh_add_executable(test_http_server "tests/test_http_server.cpp" fepoh_server "${LIB_LIB}")

@@ -1,8 +1,22 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-19 21:31:57
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-19 21:53:43
+ * @FilePath: /fepoh/workspace/fepoh_server/src/util.h
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
 
 #include <stdint.h>
 #include <string>
 #include <nlohmann/json.hpp>
+
 
 using Json = nlohmann::json;
 
@@ -31,5 +45,9 @@ bool IsBaseType(const T& val){
 }
 
 std::string ErrorToString();
+
+std::string BackTrace(int size = 64,int skip = 1,const std::string& prefix = "");
+
+void BackTrace(std::vector<std::string>& vecStr, int size = 64,int skip = 1);
 
 }//namespace

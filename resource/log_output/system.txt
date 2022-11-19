@@ -23,3 +23,12 @@
 2022-11-01 20:33:09	11485	UNKOWN	0	DEBUG	system	/home/fepoh/workspace/fepoh_server/tests/test_config.cpp:85	wefg11111111111111111
 2022-11-01 20:33:50	11676	UNKOWN	0	DEBUG	system	/home/fepoh/workspace/fepoh_server/tests/test_config.cpp:85	wefg11111111111111111
 2022-11-01 20:34:05	11837	UNKOWN	0	DEBUG	system	/home/fepoh/workspace/fepoh_server/tests/test_config.cpp:85	wefg11111111111111111
+2022-11-19 17:25:11	45579	UNKOWN	0	[WARN]	[system]	tests/test_log.cpp:41	[test_config]	i love you 3000
+2022-11-19 17:25:20	45603	UNKOWN	0	[WARN]	[system]	tests/test_log.cpp:41	[test_config]	i love you 3000
+2022-11-19 17:26:35	45705	UNKOWN	0	[WARN]	[system]	tests/test_log.cpp:41	[test_config]	i love you 3000
+2022-11-19 17:27:02	45790	UNKOWN	0	[WARN]	[system]	tests/test_log.cpp:41	[test_config]	i love you 3000
+2022-11-19 17:27:25	45865	UNKOWN	0	[WARN]	[system]	tests/test_log.cpp:41	[test_config]	i love you 3000
+2022-11-19 19:11:36	50260	UNKOWN	0	[WARN]	[system]	tests/test_log.cpp:41	[test_config]	i love you 3000
+2022-11-19 20:03:28	53318	UNKOWN	0	[DEBUG]	[system]	tests/test_config.cpp:89	[main]	wefg11111111111111111
+2022-11-19 20:13:43	54921	UNKOWN	0	[DEBUG]	[system]	tests/test_config.cpp:89	[main]	wefg11111111111111111
+2022-11-19 20:16:15	55070	UNKOWN	0	[DEBUG]	[system]	tests/test_config.cpp:90	[main]	wefg11111111111111111
