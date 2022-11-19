@@ -12,6 +12,7 @@ public:
     SocketStream(Socket::ptr sock,bool owner = true);
     ~SocketStream();
 
+    Socket::ptr getSocket(){return m_socket;}
     int read(void* buffer,size_t length) override;
     int read(ByteArray::ptr ba,size_t length) override;
     int write(const void* buffer,size_t length) override;

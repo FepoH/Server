@@ -22,3 +22,15 @@ public:
 
 }
 }//namespace
+
+        // if(parser->getError() & HPE_INVALID_CONSTANT){
+        //     FEPOH_LOG_ERROR(s_log_system) << "totol length = " << total_length 
+        //                     << ",max size" << max_size; 
+        //     return nullptr;
+        // }
+
+        // if((!parser->getHeadFinish())&&(total_length > max_head_size * 2)){
+        //     FEPOH_LOG_ERROR(s_log_system) << "totol length = " << total_length 
+        //                     << ",max head size" << max_head_size; 
+        //     return nullptr;
+        // }

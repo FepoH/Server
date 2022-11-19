@@ -257,7 +257,7 @@ void IOManager::idle() {
         do{
             //超时时间
             static const int MAX_TIMEOUT = 3000;
-            uint64_t timeout = getMinTrigger();
+            uint64_t timeout = getNextTimer();
             if(timeout > MAX_TIMEOUT){
                 timeout = MAX_TIMEOUT;
             }
@@ -269,13 +269,12 @@ void IOManager::idle() {
             }
         }while(true);
         //已超时事件加入队列
-        std::list<std::function<void()>> listCbs;
-        listAllExpired(listCbs);
+        std::vector<std::function<void()>> listCbs;
+        listExpiredCb(listCbs);
         if(!listCbs.empty()){
             this->schedule(listCbs.begin(),listCbs.end());
             listCbs.clear();
         }
-
         for(int i = 0; i < rt; ++i){
             epoll_event& event = events[i];
             if(event.data.fd == m_pipefd[0]){

@@ -5,9 +5,10 @@ namespace fepoh{
 namespace http{
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
-HttpServer::HttpServer(bool keepalive, fepoh::IOManager* worker,
-            IOManager* accept_worker)
-        :TcpServer(worker,accept_worker),m_isKeepalive(keepalive){
+HttpServer::HttpServer(bool keepalive, fepoh::IOManager* worker,IOManager* accept_worker)
+        :TcpServer(worker,accept_worker)
+        ,m_isKeepalive(keepalive)
+        ,m_dispath(new ServletDispath()){
     
 }
 
@@ -21,12 +22,13 @@ void HttpServer::handleClient(Socket::ptr client) {
             break; 
         }
         HttpResponse::ptr rsp(new HttpResponse(req->getVersion(),req->getClose() || !m_isKeepalive));
-        rsp->setBody("hello sylar");
+        m_dispath->handle(req,rsp,session);
+        //rsp->setBody("hello darling-ls");
         session->sendResponse(rsp);
     }while(m_isKeepalive);
     session->close();
 }
-
+//220.202.232.102
 
 }
 

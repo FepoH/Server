@@ -205,6 +205,7 @@ public:
     void delCookie(const std::string& key);
 
     std::ostream& dump(std::ostream& os);
+    std::string tostring();
 private:
     template<class T>
     T getAs(MapType data,const std::string& key,T def = T()){
@@ -284,7 +285,7 @@ public:
     void delCookie(const std::string& key);
 
     std::ostream& dump(std::ostream& os);
-
+    std::string tostring();
 private:
     template<class T>
     T getAs(MapType data,const std::string& key,T def = T()){

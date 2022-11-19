@@ -69,17 +69,18 @@ void test_stl(){
 }
 
 void test_file(){
-    //Config::LoadFromJson("/home/fepoh/workspace/fepoh_server/resource/config/log.json");
+    Config::LoadFromJson("/home/fepoh/workspace/fepoh_server/resource/config/log.json");
 }
 
 ConfigVar<int>::ptr g_system_port = Config::Lookup<int>(10,"system.port");
 
 int main(){
-    //test_base();
+    s_log_system->setLevel(LogLevel::Level::WARN);
+    test_base();
     //test_stl();
     test_file();
     std::string str = Config::dump();
-    //std::cout <<str <<std::endl;
+    std::cout <<str <<std::endl;
     Logger::ptr ss_log_system = FEPOH_LOG_NAME("system");
     Config::LoadFromJson("/home/fepoh/workspace/fepoh_server/resource/config/log.json");
     FEPOH_LOG_DEBUG(ss_log_system) <<"wefg11111111111111111";

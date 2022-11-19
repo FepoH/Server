@@ -176,13 +176,13 @@ unsigned int sleep(unsigned int seconds){
     fepoh::IOManager* iom = fepoh::IOManager::GetThis();
     
     //这个也可以用
-    // iom->addTimer(fepoh::Timer::ptr(new fepoh::Timer(seconds * 1000,iom,[iom,fiber](){
-    //     iom->schedule(fiber);
-    // },false)));
+    iom->addTimer(seconds * 1000,[iom,fiber](){
+        iom->schedule(fiber);
+    },false);
 
     //::*,指向数据成员的指针类型
-    iom->addTimer(fepoh::Timer::ptr(new fepoh::Timer(seconds * 1000,iom,
-            std::bind((void(fepoh::ScheduleManager::*)(fepoh::Fiber::ptr))&fepoh::IOManager::schedule,iom,fiber),false)));
+    // iom->addTimer(fepoh::Timer::ptr(new fepoh::Timer(seconds * 1000,
+    //         std::bind((void(fepoh::ScheduleManager::*)(fepoh::Fiber::ptr))&fepoh::IOManager::schedule,iom,fiber),false)));
     fiber->swapOutHold();
     return 0;
 }
@@ -193,9 +193,9 @@ int usleep(useconds_t usec){
     }
     fepoh::Fiber::ptr fiber = fepoh::Fiber::GetThis();
     fepoh::IOManager* iom = fepoh::IOManager::GetThis();
-    iom->addTimer(fepoh::Timer::ptr(new fepoh::Timer(usec / 1000,iom,[iom,fiber](){
+    iom->addTimer(usec / 1000,[iom,fiber](){
         iom->schedule(fiber);
-    },false)));
+    },false);
     fiber->swapOutHold();
     return 0;
 }
@@ -208,9 +208,9 @@ int nanosleep(const struct timespec *rqtp, struct timespec *rmtp){
     uint64_t timeout = rqtp->tv_sec * 1000 + rmtp->tv_nsec / 1000 / 1000;
     fepoh::Fiber::ptr fiber = fepoh::Fiber::GetThis();
     fepoh::IOManager* iom = fepoh::IOManager::GetThis();
-    iom->addTimer(fepoh::Timer::ptr(new fepoh::Timer(timeout,iom,[iom,fiber](){
+    iom->addTimer(timeout,[iom,fiber](){
         iom->schedule(fiber);
-    },false)));
+    },false);
     fiber->swapOutHold();
     return 0;
 }

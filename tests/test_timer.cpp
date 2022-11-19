@@ -1,5 +1,6 @@
 #include "timer.h"
 #include "log/log.h"
+#include "io_manager.h"
 
 #include <unistd.h>
 using namespace fepoh;
@@ -17,30 +18,38 @@ void test_func2(){
     // FEPOH_LOG_DEBUG(s_log_system) << "test_func end";
 }
 
-void test_timer(){
-    int count = 3;
-    std::list<std::function<void()>> cbs;
-    TimerManager::ptr timeMgr(new TimerManager());
-    //Timer::ptr time(new Timer(3000,timeMgr.get(),test_func2,true));
-    Timer::ptr time1(new Timer(2000,timeMgr.get(),test_func1,true));
-    //timeMgr->addTimer(time);
-    timeMgr->addTimer(time1);
-    while(1){
-        cbs.clear();
-        timeMgr->listAllExpired(cbs);
-        for(auto item:cbs){
-            item();
-        }
-        if(count == 5){
-            //time->setRecurring(false);
-        }
-        //FEPOH_LOG_DEBUG(s_log_system) << fepoh::GetCurTimeMs();
-        // sleep(1);
-        // ++count;
-    }
+// void test_timer(){
+//     int count = 3;
+//     std::list<std::function<void()>> cbs;
+//     TimerManager::ptr timeMgr(new TimerManager());
+//     //Timer::ptr time(new Timer(3000,timeMgr.get(),test_func2,true));
+//     Timer::ptr time1(new Timer(2000,timeMgr.get(),test_func1,true));
+//     //timeMgr->addTimer(time);
+//     timeMgr->addTimer(time1);
+//     while(1){
+//         cbs.clear();
+//         timeMgr->listAllExpired(cbs);
+//         for(auto item:cbs){
+//             item();
+//         }
+//         if(count == 5){
+//             //time->setRecurring(false);
+//         }
+//         //FEPOH_LOG_DEBUG(s_log_system) << fepoh::GetCurTimeMs();
+//         // sleep(1);
+//         // ++count;
+//     }
+// }
+
+void test(){
+    IOManager::GetThis()->addTimer(500,[](){
+        FEPOH_LOG_DEBUG(s_log_system) << "timer";
+    },true);
 }
 
 int main(){
-    test_timer();
+    IOManager iom("",3);
+    iom.schedule(test);
+    iom.start();
     
 }

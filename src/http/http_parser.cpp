@@ -8,7 +8,7 @@ namespace fepoh{
 namespace http{
 
 
-static fepoh::Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
+static fepoh::Logger::ptr s_log_system = FEPOH_LOG_NAME("http");
 
 //请求大小
 static fepoh::ConfigVar<uint64_t>::ptr g_http_request_buffer_size =
@@ -18,27 +18,40 @@ static fepoh::ConfigVar<uint64_t>::ptr g_http_request_buffer_size =
 static fepoh::ConfigVar<uint64_t>::ptr g_http_request_max_body_size =
     fepoh::Config::Lookup<uint64_t>((uint64_t)(64 * 1024 * 1024),
                 "http.request.max_body_size", "http request max body size");
+
+//请求body起始大小
+static fepoh::ConfigVar<uint64_t>::ptr g_http_request_begin_body_size =
+    fepoh::Config::Lookup<uint64_t>((uint64_t)(10 * 1024), 
+                "http.request.begin_body_size","http request begin body size");
+
 //响应大小
 static fepoh::ConfigVar<uint64_t>::ptr g_http_response_buffer_size =
     fepoh::Config::Lookup<uint64_t>((uint64_t)(4 * 1024),
                "http.response.buffer_size", "http response buffer size");
-//效应body大小
+//响应body最大
 static fepoh::ConfigVar<uint64_t>::ptr g_http_response_max_body_size =
     fepoh::Config::Lookup<uint64_t>((uint64_t)(64 * 1024 * 1024), 
                 "http.response.max_body_size","http response max body size");
+//响应body起始大小
+static fepoh::ConfigVar<uint64_t>::ptr g_http_response_begin_body_size =
+    fepoh::Config::Lookup<uint64_t>((uint64_t)(10 * 1024), 
+                "http.response.begin_body_size","http response begin body size");
 
 static uint64_t s_http_request_buffer_size = 0;
 static uint64_t s_http_request_max_body_size = 0;
+static uint64_t s_http_request_begin_body_size = 0;
 static uint64_t s_http_response_buffer_size = 0;
 static uint64_t s_http_response_max_body_size = 0;
+static uint64_t s_http_response_begin_body_size = 0;
 
 struct __HttpInit__{
         __HttpInit__() {
         s_http_request_buffer_size = g_http_request_buffer_size->getValue();
         s_http_request_max_body_size = g_http_request_max_body_size->getValue();
+        s_http_request_begin_body_size = g_http_request_begin_body_size->getValue();
         s_http_response_buffer_size = g_http_response_buffer_size->getValue();
         s_http_response_max_body_size = g_http_response_max_body_size->getValue();
-
+        s_http_response_begin_body_size = g_http_response_begin_body_size->getValue();
         g_http_request_buffer_size->addListener(
                 [](const uint64_t& ov, const uint64_t& nv){
                 s_http_request_buffer_size = nv;
@@ -47,6 +60,10 @@ struct __HttpInit__{
         g_http_request_max_body_size->addListener(
                 [](const uint64_t& ov, const uint64_t& nv){
                 s_http_request_max_body_size = nv;
+        });
+        g_http_request_begin_body_size->addListener(
+                [](const uint64_t& ov, const uint64_t& nv){
+                s_http_request_begin_body_size = nv;
         });
 
         g_http_response_buffer_size->addListener(
@@ -57,6 +74,10 @@ struct __HttpInit__{
         g_http_response_max_body_size->addListener(
                 [](const uint64_t& ov, const uint64_t& nv){
                 s_http_response_max_body_size = nv;
+        });
+        g_http_response_begin_body_size->addListener(
+                [](const uint64_t& ov, const uint64_t& nv){
+                s_http_response_begin_body_size = nv;
         });
     }
 };
@@ -86,6 +107,10 @@ uint64_t HttpRequestParser::getContentLength(){
     return m_data->getContentLength();
 }
 
+void HttpRequestParser::appendBody(const char* buffer,int length){
+    m_body.append(buffer,length);
+}
+
 //????
 int request_message_begin_cb (http_parser *p)
 {
@@ -110,9 +135,16 @@ int request_header_value_cb (http_parser *p, const char *buf, size_t len)
     std::string value(buf, len);
     HttpRequestParser *parser = static_cast<HttpRequestParser*>(p->data);
     parser->getData()->setHeader(parser->getField(), value);
+    if(strncasecmp(parser->getField().c_str(),"connection",10) == 0){
+        if(strncasecmp(buf,"keep-alive",10)){
+            parser->getData()->setClose(false);
+        }else{
+            parser->getData()->setClose(true);
+        }
+    }
     return 0;
 }
-
+ 
 //url
 int request_request_url_cb (http_parser *p, const char *buf, size_t len){
     FEPOH_LOG_DEBUG(s_log_system) << "request_request_url_cb, url is:" << buf;
@@ -148,8 +180,12 @@ int request_response_status_cb (http_parser *p, const char *buf, size_t len){
 int request_body_cb (http_parser *p, const char *buf, size_t len){
     FEPOH_LOG_DEBUG(s_log_system) << "request response status call back";
     HttpRequestParser* hrp = static_cast<HttpRequestParser*>(p->data);
-    std::string body(buf,len);
-    hrp->getData()->setBody(body); 
+    hrp->appendBody(buf,len);
+    if(hrp->getBody().size() > s_http_response_max_body_size){
+        FEPOH_LOG_ERROR(s_log_system) << "Invalid response";
+        p->http_errno = HPE_INVALID_CONSTANT;
+        return 1;
+    }
     return 0;
 }
 
@@ -172,6 +208,7 @@ int request_message_complete_cb (http_parser *p){
     FEPOH_LOG_DEBUG(s_log_system) << "request_message_complete_cb";
     HttpRequestParser* hrp = static_cast<HttpRequestParser*>(p->data);
     hrp->setFinished(true);
+    hrp->getData()->setBody(hrp->getBody());
     return 0;
 }
 
@@ -217,13 +254,17 @@ int HttpRequestParser::execute(char *data, size_t len){
 
 
 HttpResponseParser::HttpResponseParser():m_error(0)
-            ,m_data(new HttpResponse()),m_isFinished(false){
+            ,m_data(new HttpResponse()),m_isFinished(false),m_headFinish(false){
     http_parser_init(&m_parser,HTTP_RESPONSE);
     m_parser.data = this;
 }
 
 uint64_t HttpResponseParser::getContentLength(){
     return m_data->getContentLength();
+}
+
+void HttpResponseParser::appendBody(const char* buffer,int length){
+    m_body.append(buffer,length);
 }
 
 int response_message_begin_cb (http_parser *p){
@@ -244,6 +285,13 @@ int response_header_value_cb (http_parser *p, const char *buf, size_t len){
     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(p->data);
     std::string value(buf,len);
     hrp->getData()->setHeader(hrp->getField(),value);
+    if(strncasecmp(hrp->getField().c_str(),"connection",10) == 0){
+        if(strncasecmp(buf,"keep-alive",10)){
+            hrp->getData()->setClose(false);
+        }else{
+            hrp->getData()->setClose(true);
+        }
+    }
     return 0;
 }
 
@@ -262,8 +310,12 @@ int response_response_status_cb (http_parser *p, const char *buf, size_t len){
 int response_body_cb (http_parser *p, const char *buf, size_t len){
     FEPOH_LOG_DEBUG(s_log_system) << "response_response_status_cb";
     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(p->data);
-    std::string body(buf,len);
-    hrp->getData()->setBody(body);
+    hrp->appendBody(buf,len);
+    if(hrp->getBody().size() > s_http_response_max_body_size){
+        FEPOH_LOG_ERROR(s_log_system) << "Invalid response";
+        p->http_errno = HPE_INVALID_CONSTANT;
+        return 1;
+    }
     return 0;
 }
 
@@ -285,6 +337,7 @@ int response_message_complete_cb (http_parser *p){
     FEPOH_LOG_DEBUG(s_log_system) << "response_message_complete_cb";
     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(p->data);
     hrp->setFinished(true);
+    hrp->getData()->setBody(hrp->getBody());
     return 0;
 }
 

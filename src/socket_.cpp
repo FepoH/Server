@@ -308,6 +308,7 @@ ssize_t Socket::recv(iovec* buffers,size_t len,int flags){
         msg.msg_iovlen = len;
         return ::sendmsg(m_sock,&msg,flags);
     }
+    return -1;
 }
 
 ssize_t Socket::recvfrom(void* buf,size_t len,const Address::ptr fromAddr,int flags){

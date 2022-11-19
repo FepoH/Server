@@ -83,6 +83,13 @@ std::ostream& HttpRequest::dump(std::ostream& os){
     return os;
 }
 
+std::string HttpRequest::tostring(){
+    std::stringstream ss;
+    dump(ss);
+    return ss.str();
+}
+
+
 bool HttpRequest::has(MapType type,const std::string& key) const{
     auto it = type.find(key);
     if(it != type.end()){
@@ -194,6 +201,11 @@ std::ostream& HttpResponse::dump(std::ostream& os){
     return os;
 }
 
+std::string HttpResponse::tostring(){
+    std::stringstream ss;
+    dump(ss);
+    return ss.str();
+}
 
 
 }
