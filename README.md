@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 17:32:26
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 03:08:20
+ * @LastEditTime: 2022-11-20 22:38:16
  * @FilePath: /fepoh/workspace/fepoh_server/README.md
  * @Description: 
  * 
@@ -87,7 +87,7 @@ uint64_t s_buffer_size = g_buffer_size->getValue();
 + 支持压缩数据(ZigZag算法)
 + 可自适应机器大小端
 
-## 调度器模块
+## 协程调度器模块**
 ### 协程模型
 ```C++
 //若不适用IOManager,自己创建的协程都是非use_caller,但本人没有实现单独api调用
@@ -115,6 +115,70 @@ t_main_fiber--                --t_root_fiber--                  ---other_fiber
              ---backHold()<----              ---swapOutHold()<---
 
 ```
+### 调度器功能
++ 创建线程池
++ 创建一个比例为:`调度器:协程:协程=1:N:M`的协程调度器,调度协程任务
++ 支持任务在多线程中切换,有效防止线程资源分配不均匀问题
+
+### 使用
+```C++
+void test(){
+    //...
+}
+
+void test(){
+    /**
+     * @param1 调度器名称
+     * @param2 线程数
+     * @param3 use_caller
+     */    
+    IOManager iom("name",3,true);
+    iom.schedule(test);
+    iom.start();
+    iom.stop();
+}
+```
+## IO协程调度
+### 功能
++ 基于epoll的et边缘触发,在线程无事可做时陷入epoll_wait
++ 继承协程调度器,继承定时器(毫秒级别精度),可添加定时器和条件定时器
++ 可添加,删除,取消socket的读写事件
+
+### 定时器(毫秒级精度)
+```C++
+void test(){
+    //....
+}
+
+void test1(){
+    TimerManager tm;
+    tm.addTimer(1000,test,true);
+    //cond为weak_ptr
+    tm.addConditionTimer(1000,test,cond,false);
+    std::vector<std::function<void()> > cbs;
+    tm->listExpiredCb(cbs);
+    for(auto& cb:cbs){
+        cb();
+    }
+}
+```
+## Hook模块
+### 功能
++ hook系统底层和socket相关的API，socket io相关的API，以及sleep系列的API。
++ hook的开启控制是线程粒度的,可以自由选择。通过hook模块，可以使一些不具异步功能的API，展现出异步的性能。
+
+## Socket模块
+### 功能
++ 封装unix,ipv4,ipv6地址,定义常用API
++ 封装socket,集成相关操作,读写数据,bind,accept,connect...
++ 提供域名解析功能
+
+## Stream模块
+### 功能
++ 封装Socket读写操作
+
+## Http模块
++ 封装http请求,http响应,http_parser
 
 
 ## json C++

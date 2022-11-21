@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 22:20:44
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 15:02:05
+ * @FilePath: /fepoh/workspace/fepoh_server/src/http/http.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "http.h"
 
 namespace fepoh{
@@ -149,6 +162,11 @@ bool HttpResponse::has(MapType type,const std::string& key) const{
     return false;
 }
 
+void HttpResponse::setStatus(HttpStatus v){
+    m_status = v;
+    m_reason = HttpStatusToChars(m_status);
+}
+
 //set
 void HttpResponse::setHeader(const std::string& key,const std::string& value){
     m_headers[key] = value;
@@ -195,9 +213,6 @@ std::ostream& HttpResponse::dump(std::ostream& os){
     }else{
         os << "\r\n";
     }
-    return os;
-
-
     return os;
 }
 

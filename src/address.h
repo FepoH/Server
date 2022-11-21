@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 18:30:58
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 19:27:44
+ * @FilePath: /fepoh/workspace/fepoh_server/src/address.h
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
 
 #include <memory>
@@ -9,40 +22,93 @@
 #include <map>
 
 namespace fepoh{
-    
+
+/**
+ * @description: 地址基类
+ */
 class Address{
 public:
     typedef std::shared_ptr<Address> ptr;
     virtual ~Address() {}
-    //获取单个IP地址(IPv4和IPv6都有可能)
+    /**
+     * @description: 获取单个IP地址,IPv4或IPv6
+     * @return {*}
+     * @param {string&} node host
+     * @param {uint16_t} port 端口
+     */    
     static Address::ptr LookupIPAddr(const std::string& node ,uint16_t port);
-    //获取全部IP地址,成功返回true
+    /**
+     * @description: 获取全部IP地址
+     * @return {*}
+     * @param {std::vector<Address::ptr>&} 返回的IP地址集合
+     * @param {const std::string&} node host
+     * @param {uint32_t} port 端口
+     */    
     static bool LookupIPAddr(std::vector<Address::ptr>& vecIPaddr
                 ,const std::string& node,uint16_t port);
-                
+    /**
+     * @description: 获取本机网卡地址
+     * @return {*}
+     */    
     static bool GetInterfaceAddresses(std::multimap<std::string
             ,std::pair<Address::ptr,uint32_t>>& res);
+    /**
+     * @description: 获取本机网卡地址
+     * @return {*}
+     */    
     static bool GetInterfaceAddresses(std::vector<std::pair<Address::ptr,uint32_t>>& res
             ,const std::string& itfc);
-    //根据sockaddr信息创建相应子类
+    /**
+     * @description: 根据地址创建相应子类对象
+     * @return {*}
+     * @param {sockaddr*} addr 
+     * @param {socklen_t} socklen
+     */    
     static Address::ptr Create(const sockaddr* addr ,socklen_t socklen);
-    //获取协议族
+    /**
+     * @description: 获取协议族
+     * @return {*}
+     */    
     int getFamily() const;
-    //获取sockaddr
+    /**
+     * @description: 获取地址长度
+     * @return {*}
+     */    
     virtual const sockaddr* getAddr() const = 0;
+    /**
+     * @description: 获取addr
+     * @return {*}
+     */    
     virtual sockaddr* getAddr() = 0;
-    //获取地址长度
+    /**
+     * @description: 获取addrlen
+     * @return {*}
+     */    
     virtual socklen_t getAddrLen() const = 0;
-    //序列化
+    /**
+     * @description: 序列化
+     * @return {*}
+     * @param {ostream&} os
+     */    
     virtual std::ostream& insert(std::ostream& os) const = 0;
+    /**
+     * @description: tostring
+     * @return {*}
+     */    
     std::string tostring();
-    //重载运算符函数,方便stl容器
+    /**
+     * @description: 运算符重载,有利于stl容器存放
+     * @return {*}
+     */    
     bool operator<(const Address& rhs) const;
     bool operator==(const Address& rhs) const;
     bool operator!=(const Address& rhs) const;
     bool operator>(const Address& rhs) const;
 };
 
+/**
+ * @description: IP地址基类
+ */
 class IPAddress : public Address{
 public:
     typedef std::shared_ptr<IPAddress> ptr;
@@ -111,6 +177,9 @@ private:
     struct sockaddr_in6 m_addr;     //地址
 };
 
+/**
+ * @description: Unix地址
+ */
 class UnixAddress : public Address{
 public:
     typedef std::shared_ptr<UnixAddress> ptr;
@@ -128,6 +197,9 @@ private:
     socklen_t m_length;
 };
 
+/**
+ * @description: 未知地址
+ */
 class UnkownAddress : public Address{
 public:
     typedef std::shared_ptr<UnkownAddress> ptr;

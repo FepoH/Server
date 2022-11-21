@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-18 12:12:24
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 14:05:42
+ * @FilePath: /fepoh/workspace/fepoh_server/src/http/http_session.h
+ * @Description: http seesion 服务器端
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
 
 
@@ -13,11 +26,17 @@ public:
     typedef std::shared_ptr<HttpSession> ptr;
 
     HttpSession(Socket::ptr sock,bool owner = true);
-
+    /**
+     * @description: 接受请求
+     * @return {*}
+     */    
     HttpRequest::ptr recvRequrest();
+    /**
+     * @description: 发送响应
+     * @return {*}
+     * @param {ptr} response
+     */    
     int sendResponse(HttpResponse::ptr response);
-
-
 };
 
 }

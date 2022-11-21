@@ -32,3 +32,37 @@
 2022-11-19 20:03:28	53318	UNKOWN	0	[DEBUG]	[system]	tests/test_config.cpp:89	[main]	wefg11111111111111111
 2022-11-19 20:13:43	54921	UNKOWN	0	[DEBUG]	[system]	tests/test_config.cpp:89	[main]	wefg11111111111111111
 2022-11-19 20:16:15	55070	UNKOWN	0	[DEBUG]	[system]	tests/test_config.cpp:90	[main]	wefg11111111111111111
+2022-11-21 17:29:14	9151	UNKOWN	1	[DEBUG]	[system]	src/fiber.cpp:58	[Fiber]	Fiber::Fiber.mainfiber id = 1
+2022-11-21 17:29:14	9151	UNKOWN	1	[DEBUG]	[system]	src/fiber.cpp:87	[Fiber]	Fiber::Fiber.fiber id = 2
+2022-11-21 17:29:14	9151	UNKOWN	1	[DEBUG]	[system]	src/schedule_manager.cpp:69	[start]	ScheduleManager::start
+2022-11-21 17:29:14	9152	thr_0	0	[INFO]	[system]	src/thread/thread.cpp:108	[Run]	Thread run.thread name = thr_0,thread id = 9152
+2022-11-21 17:29:14	9152	thr_0	0	[INFO]	[system]	src/schedule_manager.cpp:120	[run]	ScheduleManager::run
+2022-11-21 17:29:14	9152	thr_0	3	[DEBUG]	[system]	src/fiber.cpp:58	[Fiber]	Fiber::Fiber.mainfiber id = 3
+2022-11-21 17:29:14	9152	thr_0	3	[DEBUG]	[system]	src/fiber.cpp:87	[Fiber]	Fiber::Fiber.fiber id = 4
+2022-11-21 17:29:14	9152	thr_0	3	[DEBUG]	[system]	src/fiber.cpp:87	[Fiber]	Fiber::Fiber.fiber id = 5
+2022-11-21 17:29:14	9151	UNKOWN	1	[DEBUG]	[system]	src/schedule_manager.cpp:86	[stop]	ScheduleManager::stop
+2022-11-21 17:29:14	9152	thr_0	3	[DEBUG]	[system]	src/fiber.cpp:87	[Fiber]	Fiber::Fiber.fiber id = 6
+2022-11-21 17:29:14	9151	UNKOWN	2	[INFO]	[system]	src/fiber.cpp:155	[call]	root_fiber --> main_fiber call
+2022-11-21 17:29:14	9151	UNKOWN	2	[INFO]	[system]	src/schedule_manager.cpp:120	[run]	ScheduleManager::run
+2022-11-21 17:29:14	9151	UNKOWN	2	[DEBUG]	[system]	src/fiber.cpp:87	[Fiber]	Fiber::Fiber.fiber id = 7
+2022-11-21 17:29:14	9151	UNKOWN	7	[DEBUG]	[system]	src/io_manager.cpp:262	[idle]	IOManager::Idle Run.
+2022-11-21 17:29:14	9152	thr_0	6	[INFO]	[system]	src/tcp_server.cpp:76	[bind]	server bind success:[Socket = 8,Family = 2,Protocol = 0,Type = 1,Connected = 0,Local address = 0.0.0.0:8020]
+2022-11-21 17:29:14	9152	thr_0	3	[DEBUG]	[system]	src/fiber.cpp:87	[Fiber]	Fiber::Fiber.fiber id = 8
+2022-11-21 17:29:14	9152	thr_0	3	[DEBUG]	[system]	src/fiber.cpp:87	[Fiber]	Fiber::Fiber.fiber id = 9
+2022-11-21 17:29:14	9152	thr_0	4	[DEBUG]	[system]	src/io_manager.cpp:262	[idle]	IOManager::Idle Run.
+2022-11-21 17:30:19	9342	thr_0	11	[ERROR]	[system]	src/socket_stream.cpp:40	[read]	read error,errno = 104:Connection reset by peer
+2022-11-21 17:30:19	9342	thr_0	11	[WARN]	[system]	src/http/http_server.cpp:33	[handleClient]	recv http request fail.errno = 104:Connection reset by peer
+2022-11-21 17:31:04	9388	UNKOWN	11	[ERROR]	[system]	src/socket_stream.cpp:40	[read]	read error,errno = 11:Resource temporarily unavailable
+2022-11-21 17:31:04	9388	UNKOWN	11	[WARN]	[system]	src/http/http_server.cpp:33	[handleClient]	recv http request fail.errno = 11:Resource temporarily unavailable
+2022-11-21 17:31:43	9388	UNKOWN	13	[ERROR]	[system]	src/socket_stream.cpp:40	[read]	read error,errno = 11:Resource temporarily unavailable
+2022-11-21 17:31:43	9388	UNKOWN	13	[WARN]	[system]	src/http/http_server.cpp:33	[handleClient]	recv http request fail.errno = 11:Resource temporarily unavailable
+2022-11-21 17:32:14	9389	thr_0	15	[ERROR]	[system]	src/socket_stream.cpp:40	[read]	read error,errno = 11:Resource temporarily unavailable
+2022-11-21 17:32:14	9389	thr_0	15	[WARN]	[system]	src/http/http_server.cpp:33	[handleClient]	recv http request fail.errno = 11:Resource temporarily unavailable
+2022-11-21 17:36:35	9528	thr_0	11	[ERROR]	[system]	src/socket_stream.cpp:40	[read]	read error,errno = 11:Resource temporarily unavailable
+2022-11-21 17:36:35	9528	thr_0	11	[WARN]	[system]	src/http/http_server.cpp:33	[handleClient]	recv http request fail.errno = 11:Resource temporarily unavailable
+2022-11-21 17:38:46	9528	thr_0	13	[ERROR]	[system]	src/socket_stream.cpp:40	[read]	read error,errno = 11:Resource temporarily unavailable
+2022-11-21 17:38:46	9528	thr_0	13	[WARN]	[system]	src/http/http_server.cpp:33	[handleClient]	recv http request fail.errno = 11:Resource temporarily unavailable
+2022-11-21 17:39:26	9528	thr_0	15	[ERROR]	[system]	src/socket_stream.cpp:40	[read]	read error,errno = 11:Resource temporarily unavailable
+2022-11-21 17:39:26	9528	thr_0	15	[WARN]	[system]	src/http/http_server.cpp:33	[handleClient]	recv http request fail.errno = 11:Resource temporarily unavailable
+2022-11-21 17:46:14	9527	UNKOWN	17	[ERROR]	[system]	src/socket_stream.cpp:40	[read]	read error,errno = 11:Resource temporarily unavailable
+2022-11-21 17:46:14	9527	UNKOWN	17	[WARN]	[system]	src/http/http_server.cpp:33	[handleClient]	recv http request fail.errno = 11:Resource temporarily unavailable

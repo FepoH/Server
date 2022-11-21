@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-17 17:33:24
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 20:37:40
+ * @FilePath: /fepoh/workspace/fepoh_server/src/stream.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "stream.h"
 #include "log/log.h"
 

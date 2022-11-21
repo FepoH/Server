@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-21 14:32:45
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 14:50:17
+ * @FilePath: /fepoh/workspace/fepoh_server/src/http/http_server.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "http_server.h"
 #include "log/log.h"
 
@@ -8,7 +21,7 @@ static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 HttpServer::HttpServer(bool keepalive, fepoh::IOManager* worker,IOManager* accept_worker)
         :TcpServer(worker,accept_worker)
         ,m_isKeepalive(keepalive)
-        ,m_dispath(new ServletDispath()){
+        ,m_dispath(new ServletManager()){
     
 }
 
@@ -28,7 +41,6 @@ void HttpServer::handleClient(Socket::ptr client) {
     }while(m_isKeepalive);
     session->close();
 }
-//220.202.232.102
 
 }
 

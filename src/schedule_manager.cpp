@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-20 02:49:31
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 03:14:33
+ * @LastEditTime: 2022-11-20 14:10:35
  * @FilePath: /fepoh/workspace/fepoh_server/src/schedule_manager.cpp
  * @Description: 
  * 
@@ -18,25 +18,33 @@
 #include "config.h"
 
 namespace fepoh{
-
+/**
+ * @description: 管理协程
+ */
 static thread_local Fiber::ptr t_root_fiber = nullptr;       //用于切换的调度器
+
 //是否已经被use_caller的线程
-bool ScheduleManager::has_use_caller = false;   
+// bool ScheduleManager::has_use_caller = false;
+
+/**
+ * @description: 当前线程的协程管理器
+ */
 static thread_local ScheduleManager* t_scheduler = nullptr; 
 
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
 static ConfigVar<uint32_t>::ptr g_fiber_root_stacksize = 
-        Config::Lookup<uint32_t>(1024*1024,"system.fiber.root.stacksize","fiber root stack size");
+        Config::Lookup<uint32_t>( 128 *1024,"system.fiber.root.stacksize","fiber root stack size");
 
 
 ScheduleManager::ScheduleManager(const std::string& name,uint32_t thrCount,bool use_caller)
         :m_name(name),m_useCaller(use_caller){
     m_threadCount = thrCount > 0 ? thrCount:1;
     t_scheduler = this;
-    if((!has_use_caller)&&use_caller){
+    //if((!has_use_caller)&&use_caller){
+    if(use_caller){
         Thread::SetName(m_name);
-        has_use_caller = true;
+        //has_use_caller = true;
         --m_threadCount;
         m_threadIds.push_back(fepoh::GetThreadId());
         //该线程纳入调度器
@@ -65,7 +73,8 @@ void ScheduleManager::start(){
     FEPOH_ASSERT(m_threads.empty());
     m_isStop = false;
     for(int i=0;i<m_threadCount;++i){
-        m_threads.push_back(Thread::ptr(new Thread(std::bind(&ScheduleManager::run,this),m_name + "_thr_" + std::to_string(i))));
+        m_threads.push_back(Thread::ptr(new Thread(std::bind(&ScheduleManager::run,this)
+                            ,(m_name.empty() ? "thr_" : m_name + "thr_") + std::to_string(i))));
         m_threadIds.push_back(m_threads[i]->getId());
     }
     // if(m_useCaller){
@@ -85,6 +94,7 @@ void ScheduleManager::stop(){
     }
     if(t_root_fiber != Fiber::GetMainFiber()){
         if(!isStop()){
+            //root_fiber-->main_fiber
             t_root_fiber->call();
         }
     }
@@ -109,6 +119,7 @@ void ScheduleManager::run(){
     SetThis(this);
     FEPOH_LOG_INFO(s_log_system)<< "ScheduleManager::run";
     if(t_root_fiber == nullptr){
+        //创建main_fiber
         t_root_fiber = Fiber::GetThis();
     }
     Fiber::ptr idle_fiber(new Fiber(std::bind(&ScheduleManager::idle,this)));
@@ -145,13 +156,12 @@ void ScheduleManager::run(){
                 --m_activeThreadCount;
                 continue;
             }
-            if(idle_fiber->getState()==Fiber::TERM){
+            if((idle_fiber->getState()==Fiber::TERM) || (idle_fiber->getState() == Fiber::EXCEPT)){
                 FEPOH_LOG_INFO(s_log_system)<<"idle term";
                 break;
             }
             ++m_idleThreadCount;
             idle_fiber->swapIn();
-            //FEPOH_LOG_DEBUG(g_log_system)<<"idle swap out";
             if(idle_fiber->getState()!=Fiber::EXCEPT
                 &&idle_fiber->getState()!=Fiber::TERM){
                 idle_fiber->setState(Fiber::State::HOLD);

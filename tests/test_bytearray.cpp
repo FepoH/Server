@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 01:25:12
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 15:00:01
+ * @FilePath: /fepoh/workspace/fepoh_server/tests/test_bytearray.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "bytearray.h"
 #include "log/log.h"
 #include "macro.h"

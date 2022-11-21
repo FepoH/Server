@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 19:34:40
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 19:37:03
+ * @FilePath: /fepoh/workspace/fepoh_server/tests/test_iomanager.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "io_manager.h"
 #include "log/log.h"
 #include "timer.h"
@@ -16,33 +29,6 @@ using namespace fepoh;
 
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
-
-// void test_func1();
-// static IOManager::ptr iom(new IOManager("iom",1,true));
-// static Timer::ptr t(new Timer(2000,iom.get(),test_func1,true));
-
-// void test_func(){
-//     FEPOH_LOG_DEBUG(s_log_system) <<" test**********";
-// }
-
-// void test_func1(){
-//     static int i = 0;
-//     ++i;
-//     FEPOH_LOG_DEBUG(s_log_system) <<" test timer**********";
-//     if(i == 1){
-//         t->setRecurring(false);
-//     }
-// }
-
-// void test(){
-//     FEPOH_LOG_DEBUG(s_log_system) <<"main start";
-//     iom->addTimer(t);
-//     for(int i=0;i<4;++i){
-//         iom->schedule(test_func);
-//     }
-//     iom->start();
-//     iom->stop();
-// }
 
 int sock = 0;
 
@@ -81,6 +67,5 @@ void test1() {
 }
 
 int main(){
-    //test();
     test1();
 }

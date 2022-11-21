@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-21 14:00:51
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 15:01:07
+ * @FilePath: /fepoh/workspace/fepoh_server/src/tcp_server.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "tcp_server.h"
 #include "config.h"
 #include "log/log.h"
@@ -26,6 +39,7 @@ TcpServer::~TcpServer() {
     }
     m_socks.clear();
 }
+
 bool TcpServer::bind(fepoh::Address::ptr addr){
     std::vector<Address::ptr> addrs;
     std::vector<Address::ptr> failAddrs;
@@ -33,6 +47,8 @@ bool TcpServer::bind(fepoh::Address::ptr addr){
     return bind(addrs,failAddrs);
 }
 
+
+//绑定并监听
 bool TcpServer::bind(const std::vector<Address::ptr>& addrs,std::vector<Address::ptr>& failAddrs){
     for(auto& addr : addrs){
         Socket::ptr sock = Socket::CreateTCP(addr);
@@ -79,6 +95,7 @@ void TcpServer::stop(){
     auto self = shared_from_this();
     m_acceptWorker->schedule([this,self](){
         for(auto& sock : m_socks){
+            //删除事件
             sock->cancelAll();
             sock->close();
         }
@@ -92,6 +109,7 @@ void TcpServer::handleClient(Socket::ptr client){
 
 void TcpServer::startAccept(Socket::ptr sock){
     while(!m_isStop){
+        //注册读事件
         Socket::ptr client = sock->accept();
         if(client){
             m_worker->schedule(std::bind(&TcpServer::handleClient

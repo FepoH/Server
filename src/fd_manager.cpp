@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 17:56:15
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 21:34:03
+ * @FilePath: /fepoh/workspace/fepoh_server/src/fd_manager.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "fd_manager.h"
 #include "hook.h"
 

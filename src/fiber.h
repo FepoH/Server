@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-08 20:30:04
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 02:54:16
+ * @LastEditTime: 2022-11-20 13:06:41
  * @FilePath: /fepoh/workspace/fepoh_server/src/fiber.h
  * @Description: 协程封装,适配IOManager
  * 
@@ -89,6 +89,12 @@ public:
      * @return {*}
      */    
     void backHold();
+    /**
+     * @description: 重置协程
+     * @return {*}
+     * @param {function<void()>} cb 回调函数
+     */    
+    void reset(std::function<void()> cb);
     /**
      * @description: 获取当前线程的管理协程
      * @return {*}

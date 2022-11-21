@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-10 00:37:26
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 03:15:42
+ * @LastEditTime: 2022-11-20 13:50:20
  * @FilePath: /fepoh/workspace/fepoh_server/src/schedule_manager.h
  * @Description: 
  * 
@@ -32,20 +32,21 @@ namespace fepoh{
  * @description: 任务类,
  * @return {*}
  */
-//TODO,需要优化,不把回调函数返回成Fiber,这样性能损失过大,协程执行一堆操作,而回调函数拿来即可用
 class Task{
     public:
         friend class ScheduleManager;
 
         Task(std::function<void()> cb);
         Task(Fiber::ptr fiber);
-        //如果是回调函数,直接创建Fiber,并返回
+        /**
+         * @description: 获取协程:如果是回调函数,直接创建Fiber并返回
+         * @return {*}
+         */
         Fiber::ptr getTask();
-        //重置,回收高效利用
+        //重置
         void reset();
         //判断是否有任务
         bool isEmpty();
-
         bool setTask(Fiber::ptr fiber);
         bool setTask(std::function<void()> cb);
     private:
@@ -59,14 +60,33 @@ class Task{
 class ScheduleManager : public Noncopyable{
     public:
         typedef std::shared_ptr<ScheduleManager> ptr;
-
+        /**
+         * @description: 构造函数
+         * @return {*}
+         * @param {string&} name 调度器名称
+         * @param {uint32_t} thrCount 线程数
+         * @param {bool} use_caller
+         */        
         ScheduleManager(const std::string& name="fepoh_scheduler",uint32_t thrCount = 1,bool use_caller = false);
+        /**
+         * @description: 析构函数
+         * @return {*}
+         */        
         virtual ~ScheduleManager();
-        //启动调度器
+        /**
+         * @description: 启动协程调度器:分配线程
+         * @return {*}
+         */        
         void start();
-        //停止调度器,在停止调度器中执行任务
+        /**
+         * @description: 停止协程调度器:在stop中完成任务
+         * @return {*}
+         */        
         void stop();
-        //批量添加任务
+        /**
+         * @description: 批量添加任务:回调函数或协程
+         * @return {*}
+         */        
         template<class Iterator>
         void schedule(Iterator begin,Iterator end){
             MutexLock lock(m_mutex);
@@ -75,41 +95,92 @@ class ScheduleManager : public Noncopyable{
                 ++begin;
             }
         }
-        //单个添加任务
+        /**
+         * @description: 添加单个任务
+         * @return {*}
+         * @param {Task} task
+         */        
         void schedule(Task task);
+        /**
+         * @description: 添加任务
+         * @return {*}
+         * @param {function<void()>} cb
+         */        
         void schedule(std::function<void()> cb);
+        /**
+         * @description: 添加任务
+         * @return {*}
+         * @param {ptr} fiber
+         */        
         void schedule(Fiber::ptr fiber);
     public:
-        //获取线程的协程调度器
+        /**
+         * @description: 获取当前线程的协程调度器
+         * @return {*}
+         */        
         static ScheduleManager* GetThis();
-        //设置线程的协程调度器
+        /**
+         * @description: 设置线程的协程调度器
+         * @return {*}
+         * @param {ScheduleManager*} val
+         */        
         static void SetThis(ScheduleManager* val);
-        //获取root协程
+        /**
+         * @description: 获取管理协程
+         * @return {*}
+         */        
         static Fiber* GetRootFiber();
-        //是否有空闲线程
+        /**
+         * @description: 是否有空闲协程
+         * @return {*}
+         */        
         bool  hasIdleThread() const {return m_idleThreadCount>0;}
     protected:
-        //空闲任务
+        /**
+         * @description: idle回调
+         * @return {*}
+         */        
         virtual void idle();
-        //是否停止
+        /**
+         * @description: 是否停止协程调度器
+         * @return {*}
+         */        
         virtual bool isStop();
-        //通知,唤醒线程
+        /**
+         * @description: 唤醒线程
+         * @return {*}
+         */        
         virtual void notice();
-
-        bool m_isStop = true;               //停止
+        /**
+         * @description: 停止
+         * @return {*}
+         */        
+        bool m_isStop = true;
+        /**
+         * @description: 停止:用于子类
+         * @return {*}
+         */        
         bool m_isStopping = false;
     private:
-        //无锁添加任务
+        /**
+         * @description: 无锁添加任务
+         * @return {*}
+         */
         void scheduleNoLock(Task task);
+        /**
+         * @description: 无锁添加任务
+         * @return {*}
+         * @param {function<void()>} cb
+         */        
         void scheduleNoLock(std::function<void()> cb);
-        //线程执行函数
+        /**
+         * @description: run回调函数
+         * @return {*}
+         */        
         void run();
-        //是否已经有use_caller
-        static bool has_use_caller;
-        
+      
+        // static bool has_use_caller;
     private:
-        
-        //是否执行流程的线程也纳入进去,默认纳入应该好一些,有利于资源的利用
         bool m_useCaller;           
         Mutex m_mutex;                      //锁
         std::string m_name;                 //调度器名称

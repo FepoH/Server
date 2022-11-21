@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-21 14:47:38
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 15:01:58
+ * @FilePath: /fepoh/workspace/fepoh_server/src/http/servlet.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "servlet.h"
 #include "log/log.h"
 #include <fnmatch.h>
@@ -17,11 +30,11 @@ int32_t FunctionServlet::handle(HttpRequest::ptr request
 }
 
 
-ServletDispath::ServletDispath():Servlet("ServletDispath"){
+ServletManager::ServletManager():Servlet("ServletManager"){
     m_default.reset(new NotFoundServlet());
 }
 
-int32_t ServletDispath::handle(HttpRequest::ptr request,HttpResponse::ptr response
+int32_t ServletManager::handle(HttpRequest::ptr request,HttpResponse::ptr response
                         ,HttpSession::ptr session){
     Servlet::ptr slt = getMatchServlet(request->getPath());
     if(slt){
@@ -30,15 +43,16 @@ int32_t ServletDispath::handle(HttpRequest::ptr request,HttpResponse::ptr respon
     m_default->handle(request,response,session);
     return 0;
 }
-void ServletDispath::addServlet(const std::string& uri,Servlet::ptr slt){
+
+void ServletManager::addServlet(const std::string& uri,Servlet::ptr slt){
     WriteLock lock(m_mutex);
     m_data[uri] = slt;
 }
-void ServletDispath::addServlet(const std::string& uri,FunctionServlet::callbck cb){
+void ServletManager::addServlet(const std::string& uri,FunctionServlet::callbck cb){
     WriteLock lock(m_mutex);
     m_data[uri] = Servlet::ptr(new FunctionServlet(cb));
 }
-void ServletDispath::addGlobServlet(const std::string& uri,Servlet::ptr slt){
+void ServletManager::addGlobServlet(const std::string& uri,Servlet::ptr slt){
     WriteLock lock(m_mutex);
     for(auto it = m_globData.begin();it != m_globData.end();++it){
         if(it->first == uri){
@@ -48,7 +62,7 @@ void ServletDispath::addGlobServlet(const std::string& uri,Servlet::ptr slt){
     }
     m_globData.push_back(std::make_pair(uri,slt));
 }
-void ServletDispath::addGlobServlet(const std::string& uri,FunctionServlet::callbck cb){
+void ServletManager::addGlobServlet(const std::string& uri,FunctionServlet::callbck cb){
     WriteLock lock(m_mutex);
     for(auto it = m_globData.begin();it != m_globData.end();++it){
         if(it->first == uri){
@@ -59,14 +73,14 @@ void ServletDispath::addGlobServlet(const std::string& uri,FunctionServlet::call
     Servlet::ptr slt(new FunctionServlet(cb));
     m_globData.push_back(std::make_pair(uri,slt));
 }
-void ServletDispath::delServlet(const std::string& uri){
+void ServletManager::delServlet(const std::string& uri){
     WriteLock lock(m_mutex);
     auto it = m_data.find(uri);
     if(it != m_data.end()){
         m_data.erase(it);
     }
 }
-void ServletDispath::delGlobServlet(const std::string& uri){
+void ServletManager::delGlobServlet(const std::string& uri){
     WriteLock lock(m_mutex);
     for(auto it = m_globData.begin();it != m_globData.end();++it){
         if(it->first == uri){
@@ -75,7 +89,7 @@ void ServletDispath::delGlobServlet(const std::string& uri){
         }
     }
 }
-Servlet::ptr ServletDispath::getServlet(const std::string& uri){
+Servlet::ptr ServletManager::getServlet(const std::string& uri){
     ReadLock lock(m_mutex);
     auto it = m_data.find(uri);
     if(it != m_data.end()){
@@ -84,7 +98,7 @@ Servlet::ptr ServletDispath::getServlet(const std::string& uri){
     return nullptr;
 }
 
-Servlet::ptr ServletDispath::getGlobServlet(const std::string& uri){
+Servlet::ptr ServletManager::getGlobServlet(const std::string& uri){
     ReadLock lock(m_mutex);
     for(auto it = m_globData.begin();it != m_globData.end();++it){
         if(!fnmatch(it->first.c_str(),uri.c_str(),0)){
@@ -93,7 +107,7 @@ Servlet::ptr ServletDispath::getGlobServlet(const std::string& uri){
     }
     return nullptr;
 }
-Servlet::ptr ServletDispath::getMatchServlet(const std::string& uri){
+Servlet::ptr ServletManager::getMatchServlet(const std::string& uri){
     ReadLock lock(m_mutex);
     auto it = m_data.find(uri);
     if(it != m_data.end()){
@@ -123,6 +137,7 @@ int32_t NotFoundServlet::handle(HttpRequest::ptr request
     response->setBody(not_found_body);
     return 0;
 }
+
 }
 
 

@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 18:09:14
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 18:09:41
+ * @FilePath: /fepoh/workspace/fepoh_server/src/hook.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "hook.h"
 #include "fiber.h"
 #include "io_manager.h"
@@ -5,6 +18,7 @@
 #include "fd_manager.h"
 #include "config.h"
 #include <dlfcn.h>
+#include <atomic>
 
 static fepoh::Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
@@ -78,24 +92,33 @@ struct timer_info{
     int canceled = 0;
 };
 
+static std::atomic<int> counta = {0};
+
 template<typename OriginFun,typename ... Args>
 static ssize_t do_io(int fd,OriginFun fun,const char* hook_fun_name
         ,uint32_t event, int timeout_so , Args&& ... args) {
     //没有被hook
+    ++counta;
+    std::cout << "111-" << counta << std::endl;
     if(!fepoh::t_hook_enable){
         return fun(fd, std::forward<Args>(args)...);
     }
+    std::cout << "222-" << counta <<std::endl;
     fepoh::FdCtx::ptr fd_ctx = fepoh::FdManager::GetInstance()->get(fd);
+    std::cout << "333-" << counta <<std::endl;
     //没有获取到fd_ctx
     if(!fd_ctx){
         return fun(fd, std::forward<Args>(args)...);
     }
+    std::cout << "444-" << counta <<std::endl;
     //文件被关闭
     if(fd_ctx->isClose()){
         errno = EBADF;
         return -1;
     }
+    std::cout << "555-" <<std::endl;
     //不是socket或者被用户设置了nonblock
+    //用户已经设置非阻塞,就已经不会阻塞,直接返回即可
     if(!fd_ctx->isSocket() || fd_ctx->getUserNonblock()){
         return fun(fd, std::forward<Args>(args)...);
     }
@@ -120,7 +143,7 @@ retry:
             //添加条件定时器
             timer = iom->addConditionTimer(timeout,[winfo,fd ,iom , event](){
                 //唤醒后,1.查看条件是否被取消,如果取消直接返回
-                //2.若没有取消,设置为超时错误,取消并再次触发事件
+                //2.若没有取消,设置为超时错误,取消事件
                 auto t = winfo.lock();
                 if(!t || t->canceled){
                     return ;

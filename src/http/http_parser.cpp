@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-19 01:11:24
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 18:16:37
+ * @FilePath: /fepoh/workspace/fepoh_server/src/http/http_parser.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "http_parser.h"
 #include "log/log.h"
 #include "config.h"
@@ -10,7 +23,7 @@ namespace http{
 
 static fepoh::Logger::ptr s_log_system = FEPOH_LOG_NAME("http");
 
-//请求大小
+//请求头部大小
 static fepoh::ConfigVar<uint64_t>::ptr g_http_request_buffer_size =
     fepoh::Config::Lookup<uint64_t>((uint64_t)(4 * 1024), 
                 "http.request.buffer_size","http request buffer size");
@@ -24,7 +37,7 @@ static fepoh::ConfigVar<uint64_t>::ptr g_http_request_begin_body_size =
     fepoh::Config::Lookup<uint64_t>((uint64_t)(10 * 1024), 
                 "http.request.begin_body_size","http request begin body size");
 
-//响应大小
+//响应头部大小
 static fepoh::ConfigVar<uint64_t>::ptr g_http_response_buffer_size =
     fepoh::Config::Lookup<uint64_t>((uint64_t)(4 * 1024),
                "http.response.buffer_size", "http response buffer size");
@@ -111,17 +124,17 @@ void HttpRequestParser::appendBody(const char* buffer,int length){
     m_body.append(buffer,length);
 }
 
-//????
+//解析开始
 int request_message_begin_cb (http_parser *p)
 {
-    FEPOH_LOG_DEBUG(s_log_system) << "request_header_field_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "request_message_begin_cb";
     return 0;
 }
 
 //首部行:key
 int request_header_field_cb (http_parser *p, const char *buf, size_t len)
 {
-    FEPOH_LOG_DEBUG(s_log_system) << "request_header_field_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "request_header_field_cb";
     HttpRequestParser* hrp = static_cast<HttpRequestParser*>(p->data);
     std::string field(buf,len);
     hrp->setField(field);
@@ -131,7 +144,6 @@ int request_header_field_cb (http_parser *p, const char *buf, size_t len)
 //首部行value
 int request_header_value_cb (http_parser *p, const char *buf, size_t len)
 {
-    FEPOH_LOG_DEBUG(s_log_system) << "request_header_value_cb, value is:" << buf;
     std::string value(buf, len);
     HttpRequestParser *parser = static_cast<HttpRequestParser*>(p->data);
     parser->getData()->setHeader(parser->getField(), value);
@@ -147,7 +159,6 @@ int request_header_value_cb (http_parser *p, const char *buf, size_t len)
  
 //url
 int request_request_url_cb (http_parser *p, const char *buf, size_t len){
-    FEPOH_LOG_DEBUG(s_log_system) << "request_request_url_cb, url is:" << buf;
     HttpRequestParser* hrp = static_cast<HttpRequestParser*>(p->data);
     struct http_parser_url uil_parser;
     http_parser_url_init(&uil_parser);
@@ -172,13 +183,13 @@ int request_request_url_cb (http_parser *p, const char *buf, size_t len){
 
 //请求没有状态
 int request_response_status_cb (http_parser *p, const char *buf, size_t len){
-    FEPOH_LOG_ERROR(s_log_system) << "request response status call back error.";
+    // FEPOH_LOG_ERROR(s_log_system) << "request response status call back error.";
     return 1;
 }
 
 //body
 int request_body_cb (http_parser *p, const char *buf, size_t len){
-    FEPOH_LOG_DEBUG(s_log_system) << "request response status call back";
+    // FEPOH_LOG_DEBUG(s_log_system) << "request response status call back";
     HttpRequestParser* hrp = static_cast<HttpRequestParser*>(p->data);
     hrp->appendBody(buf,len);
     if(hrp->getBody().size() > s_http_response_max_body_size){
@@ -191,7 +202,7 @@ int request_body_cb (http_parser *p, const char *buf, size_t len){
 
 //头部解析完成
 int request_headers_complete_cb (http_parser *p){
-    FEPOH_LOG_DEBUG(s_log_system) << "on_request_headers_complete_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "on_request_headers_complete_cb";
     HttpRequestParser *parser = static_cast<HttpRequestParser *>(p->data);
     parser->getData()->setVersion(((p->http_major) << 4) | (p->http_minor));
     parser->getData()->setMethod((HttpMethod)(p->method));
@@ -205,7 +216,7 @@ int request_headers_complete_cb (http_parser *p){
 }
 
 int request_message_complete_cb (http_parser *p){
-    FEPOH_LOG_DEBUG(s_log_system) << "request_message_complete_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "request_message_complete_cb";
     HttpRequestParser* hrp = static_cast<HttpRequestParser*>(p->data);
     hrp->setFinished(true);
     hrp->getData()->setBody(hrp->getBody());
@@ -213,16 +224,17 @@ int request_message_complete_cb (http_parser *p){
 }
 
 int request_chunk_header_cb (http_parser *p){
-    FEPOH_LOG_DEBUG(s_log_system) << "request_chunk_header_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "request_chunk_header_cb";
     return 0;
 }
 
 
 int request_chunk_complete_cb (http_parser *p){
-    FEPOH_LOG_DEBUG(s_log_system) << "request_chunk_complete_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "request_chunk_complete_cb";
     return 0;
 }
 
+//请求回调设置
 static http_parser_settings http_request_setting = {
     .on_message_begin    = request_message_begin_cb,
     .on_url              = request_request_url_cb,
@@ -235,16 +247,17 @@ static http_parser_settings http_request_setting = {
     .on_chunk_header     = request_chunk_header_cb,
     .on_chunk_complete   = request_chunk_complete_cb};
 
+//执行解析
 int HttpRequestParser::execute(char *data, size_t len){
     setError(0);
     m_isFinished = false;
-    http_parser_execute(&m_parser,&http_request_setting,data,len);
     size_t nparsed = http_parser_execute(&m_parser, &http_request_setting,data, len);
     if (m_parser.http_errno != 0) {
         FEPOH_LOG_ERROR(s_log_system) << "parse response fail: " << http_errno_name(HTTP_PARSER_ERRNO(&m_parser));
         setError(m_parser.http_errno);
     } else {
         if (nparsed < len) {
+            //解析完成的数据要从缓冲区中移除
             memmove(data, data + nparsed, (len - nparsed));
         }
     }
@@ -268,12 +281,12 @@ void HttpResponseParser::appendBody(const char* buffer,int length){
 }
 
 int response_message_begin_cb (http_parser *p){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_message_begin_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_message_begin_cb";
     return 0;
 }
 
 int response_header_field_cb (http_parser *p, const char *buf, size_t len){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_header_field_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_header_field_cb";
     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(p->data);
     std::string field(buf,len);
     hrp->setField(field);
@@ -281,7 +294,7 @@ int response_header_field_cb (http_parser *p, const char *buf, size_t len){
 }
 
 int response_header_value_cb (http_parser *p, const char *buf, size_t len){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_header_value_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_header_value_cb";
     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(p->data);
     std::string value(buf,len);
     hrp->getData()->setHeader(hrp->getField(),value);
@@ -296,19 +309,19 @@ int response_header_value_cb (http_parser *p, const char *buf, size_t len){
 }
 
 int response_request_url_cb (http_parser *p, const char *buf, size_t len){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_request_url_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_request_url_cb";
     return 0;
 }
 
 int response_response_status_cb (http_parser *p, const char *buf, size_t len){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_response_status_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_response_status_cb";
     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(p->data);
     hrp->getData()->setStatus(HttpStatus(p->status_code));
     return 0;
 }
 
 int response_body_cb (http_parser *p, const char *buf, size_t len){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_response_status_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_response_status_cb";
     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(p->data);
     hrp->appendBody(buf,len);
     if(hrp->getBody().size() > s_http_response_max_body_size){
@@ -334,7 +347,7 @@ int response_headers_complete_cb (http_parser *p){
 
 
 int response_message_complete_cb (http_parser *p){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_message_complete_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_message_complete_cb";
     HttpResponseParser* hrp = static_cast<HttpResponseParser*>(p->data);
     hrp->setFinished(true);
     hrp->getData()->setBody(hrp->getBody());
@@ -342,16 +355,16 @@ int response_message_complete_cb (http_parser *p){
 }
 
 int response_chunk_header_cb (http_parser *p){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_chunk_header_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_chunk_header_cb";
     return 0;
 }
-
 
 int response_chunk_complete_cb (http_parser *p){
-    FEPOH_LOG_DEBUG(s_log_system) << "response_chunk_complete_cb";
+    // FEPOH_LOG_DEBUG(s_log_system) << "response_chunk_complete_cb";
     return 0;
 }
 
+//响应回调设置
 static http_parser_settings http_response_setting = {
     .on_message_begin    = response_message_begin_cb,
     .on_url              = response_request_url_cb,
@@ -365,14 +378,21 @@ static http_parser_settings http_response_setting = {
     .on_chunk_complete   = response_chunk_complete_cb};
 
 int HttpResponseParser::execute(char *data, size_t len){
-    size_t offset = http_parser_execute(&m_parser,&http_response_setting ,data, len);
-    memmove(data, data + offset, (len - offset));
-    return offset;
+    setError(0);
+    m_isFinished = false;
+    size_t nparsed = http_parser_execute(&m_parser,&http_response_setting ,data, len);
+    if (m_parser.http_errno != 0) {
+        FEPOH_LOG_ERROR(s_log_system) << "parse response fail: " << http_errno_name(HTTP_PARSER_ERRNO(&m_parser));
+        setError(m_parser.http_errno);
+    } else {
+        if (nparsed < len) {
+            memmove(data, data + nparsed, (len - nparsed));
+        }
+    }
+    return nparsed;
 }
 
-
-
-
 }
+
 }
 

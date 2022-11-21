@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 20:09:48
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 21:33:42
+ * @FilePath: /fepoh/workspace/fepoh_server/src/address.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "address.h"
 #include "hook.h"
 #include "log/log.h"
@@ -10,11 +23,18 @@ namespace fepoh{
 
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
+/**
+ * @description: 创建长度为bits的子网掩码的反码
+ * @return {*}
+ */
 template<class T>
 static T CreateRevMask(uint32_t bits){
     return (1 << (sizeof(T) * 8 - bits)) -1;
 }
-
+/**
+ * @description: 统计比特位为1的个数
+ * @return {*}
+ */
 template<class T>
 static uint32_t CountBytes(T value){
     uint32_t res = 0;
@@ -87,10 +107,6 @@ IPv6Address::ptr IPv6Address::Create(const std::string& address ,uint16_t port){
     addr.sin6_port = htons(port);
     return IPv6Address::ptr(new IPv6Address(addr));
 }
-
-static bool Lookup(std::vector<IPAddress::ptr>& vecIPaddr,const std::string& host ,
-                int family,int type,int protocol);
-
 
 
 IPAddress::ptr IPAddress::Lookup(const std::string& node ,uint16_t port){

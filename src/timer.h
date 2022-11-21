@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-18 23:52:31
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 14:32:35
+ * @FilePath: /fepoh/workspace/fepoh_server/src/timer.h
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
 
 #include "thread/mutex.h"
@@ -14,77 +27,6 @@
 
 namespace fepoh{
 
-// class TimerManager;
-// //毫秒级
-// class Timer : public std::enable_shared_from_this<Timer>{
-// public:
-//     typedef std::shared_ptr<Timer> ptr;
-//     friend class TimerManager;
-//     Timer(uint64_t ms,TimerManager* manager,std::function<void()> cb,bool recurring = false);
-//     Timer(uint64_t trigger);
-
-//     //刷新定时器时间,from_now:用以前的定时开始时间,还是当前时间
-//     bool refresh();
-//    //取消定时器
-//     void cancel();
-//     //是否已经过期
-//     bool isExpired();
-// public:
-//     void recurring();
-//     void setRecurring(bool recurring) {m_recurring = recurring;}
-//     bool getRecurring() const {return m_recurring;}
-
-//     uint64_t getMs() const {return m_ms;}
-//     uint64_t getTrigger() const {return m_trigger;}
-//     std::function<void()> getCb() const {return m_cb;}
-
-//     struct TimerCmp{
-//         bool operator()(Timer::ptr lhs,Timer::ptr rhs);
-//     };
-
-// private:
-
-//     bool m_recurring = false;       //执行完后时候再次加入定时器,默认不加入
-//     uint64_t m_ms = 0;              //定时毫秒数
-//     uint64_t m_trigger = 0;         //触发时间
-//     std::function<void()> m_cb;     //回调函数
-//     TimerManager* m_manager = nullptr;        //定时管理器
-// };
-
-
-
-// class TimerManager{
-// public:
-//     friend class Timer;
-//     typedef std::shared_ptr<TimerManager> ptr;
-
-//     TimerManager(){}
-//     ~TimerManager(){}
-//     //添加定时器
-//     void addTimer(Timer::ptr timer);
-//     //添加定时器
-//     Timer::ptr addTimer(uint64_t ms, std::function<void()> cb
-//                                   ,bool recurring);
-//     //添加条件定时器
-//     Timer::ptr addConditionTimer(uint64_t ms, std::function<void()> cb
-//                     ,std::weak_ptr<void> weak_cond
-//                     ,bool recurring = false);
-//     //删除定时器
-//     void delTimer(Timer::ptr timer);
-//     //清理定时器
-//     void clrTimer();
-//     //返回所有的过时定时器的回调函数
-//     void listAllExpired(std::list<std::function<void()>>& listCbs);
-//     //是否有定时器
-//     bool hasTimer();
-//     //获取最小的定时器与当前时间的差距
-//     uint64_t getMinTrigger();
-// protected:
-//     Mutex m_mutex;      //锁
-//     std::set<Timer::ptr,Timer::TimerCmp> m_timers;
-// };
-
-
 class TimerManager;
 /**
  * @brief 定时器
@@ -92,7 +34,6 @@ class TimerManager;
 class Timer : public std::enable_shared_from_this<Timer> {
 friend class TimerManager;
 public:
-    /// 定时器的智能指针类型
     typedef std::shared_ptr<Timer> ptr;
 
     /**

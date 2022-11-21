@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-17 23:13:49
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 22:06:42
+ * @FilePath: /fepoh/workspace/fepoh_server/src/http/http.h
+ * @Description: http请求和http响应封装
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
 
 #include <memory>
@@ -15,7 +28,7 @@ namespace http {
     GET / HTTP/1.1 
 */
 
-/*http 请求方法*/
+/* http 请求方法*/
 /* Request Methods */
 #define HTTP_METHOD_MAP(XX)         \
   XX(0,  DELETE,      DELETE)       \
@@ -61,7 +74,7 @@ namespace http {
   /* icecast */                     \
   XX(33, SOURCE,      SOURCE)       \
 
-/*http 状态*/
+/* http 状态*/
 /* Status Codes */
 #define HTTP_STATUS_MAP(XX)                                                 \
   XX(100, CONTINUE,                        Continue)                        \
@@ -124,7 +137,10 @@ namespace http {
   XX(510, NOT_EXTENDED,                    Not Extended)                    \
   XX(511, NETWORK_AUTHENTICATION_REQUIRED, Network Authentication Required) \
 
-
+/**
+ * @description: http请求枚举类
+ * @return {*}
+ */
 enum class HttpMethod{
 #define XX(num,name,string) HTTP_ ## name = num,
     HTTP_METHOD_MAP(XX)
@@ -132,27 +148,62 @@ enum class HttpMethod{
     HTTP_METHOD_INVALID
 };
 
+/**
+ * @description: http响应枚举类
+ * @return {*}
+ */
 enum class HttpStatus {
 #define XX(code,name,desc) HTTP_ ## name = code,
     HTTP_STATUS_MAP(XX)
 #undef XX
 };
-
+/**
+ * @description: string转HttpMethod
+ * @return {*}
+ * @param {string&} str
+ */
 HttpMethod StringToHttpMethod(const std::string& str);
+/**
+ * @description: HttpMethod转char*
+ * @return {*}
+ * @param {char*} str
+ */
 HttpMethod CharsToHttpMethod(const char* str);
+/**
+ * @description: HttpMethod转char*
+ * @return {*}
+ * @param {HttpMethod} hm
+ */
 const char* HttpMethodToChars(HttpMethod hm);
+/**
+ * @description: HttpStatus转char*
+ * @return {*}
+ * @param {HttpStatus} hs
+ */
 const char* HttpStatusToChars(HttpStatus hs);
 
+/**
+ * @description: 字符串比较(忽略大小写)
+ * @return {*}
+ */
 struct CaseInsensitiveLess{
     bool operator()(const std::string& lhs,const std::string& rhs);
 };
 
-
+/**
+ * @description: http请求
+ * @return {*}
+ */
 class HttpRequest{
 public:
     typedef std::shared_ptr<HttpRequest> ptr;
     typedef std::map<std::string,std::string,CaseInsensitiveLess> MapType;
-    
+    /**
+     * @description: 构造函数
+     * @return {*}
+     * @param {uint8_t} version 默认为http/1.1
+     * @param {bool} close 默认为短连接
+     */    
     HttpRequest(uint8_t version = 0x11,bool close = true);
 
     //get
@@ -166,6 +217,7 @@ public:
     MapType getHeaders() const {return m_headers;}
     MapType getParas() const {return m_paras;}
     MapType getCookies() const {return m_cookies;}
+
     //set
     void setClose(bool v) {m_close = v;}
     void setQuery(const std::string& v) {m_query = v;}
@@ -178,7 +230,11 @@ public:
     void setParas(const MapType& v) {m_paras = v;}
     void setCookies(const MapType& v) {m_cookies = v;}
     uint64_t getContentLength();
-    //get
+
+    /**
+     * @description: 获取value并转为对应类型
+     * @return {*}
+     */    
     template<class T>
     T getHeaderAs(const std::string& key,T def = T()){
         return getAs<T>(m_headers,key,def);
@@ -199,11 +255,15 @@ public:
     bool hasHeader(const std::string& key);
     bool hasPara(const std::string& key);
     bool hasCookie(const std::string& key);
-    //has
+    //del
     void delHeader(const std::string& key);
     void delPara(const std::string& key);
     void delCookie(const std::string& key);
-
+    /**
+     * @description: 序列化
+     * @return {*}
+     * @param {ostream&} os
+     */    
     std::ostream& dump(std::ostream& os);
     std::string tostring();
 private:
@@ -221,21 +281,22 @@ private:
         return def; 
     }
     bool has(MapType type,const std::string& key) const;
-    
-    //uri http://www.baidu.com:80/page/xxx?id=10&v=20#fr
-    //    协议      host      端口   路径    param     ragment
+
+    //uri http://www.baidu.com:80/page/xxx?id=10&v=20#frggment
+    //    协议      host      端口   路径    query     fragment
+    //    schema    host      port   path   query     fragment
+
     HttpMethod m_method;        //方法字段
     uint8_t m_version;          //http版本
-    bool m_close;               //首部行:关闭
-
+    bool m_close;               //长连接还是短连接
     std::string m_path;         //路径      
-    std::string m_fragment;   
-    std::string m_query;         
-    std::string m_body; 
+    std::string m_fragment;     //fragment
+    std::string m_query;        //query
+    std::string m_body;         //body
 
-    MapType m_headers;
-    MapType m_paras;
-    MapType m_cookies;
+    MapType m_headers;          //首部   
+    MapType m_paras;            //参数
+    MapType m_cookies;          //cookies
 };
 
 
@@ -243,7 +304,12 @@ class HttpResponse{
 public:
     typedef std::shared_ptr<HttpResponse> ptr;
     typedef std::map<std::string,std::string,CaseInsensitiveLess> MapType;
-
+    /**
+     * @description: 构造函数
+     * @return {*}
+     * @param {uint8_t} m_version 版本号
+     * @param {bool} close 短连接还是长连接
+     */    
     HttpResponse(uint8_t m_version = 0x11,bool close = true);
 
     uint8_t getVersion() const {return m_version;}
@@ -257,10 +323,7 @@ public:
 
     void setVersion(uint8_t v) {m_version = v;}
     void setClose(bool v) {m_close = v;}
-    void setStatus(HttpStatus v) {
-            m_status = v;
-            m_reason = HttpStatusToChars(m_status);
-    }
+    void setStatus(HttpStatus v);
     void setReason(const std::string& reason) {m_reason = reason;}
     void setBody(const std::string& body) {m_body = body;}
     void setHeaders(const MapType& v) {m_headers = v;}
@@ -283,7 +346,11 @@ public:
     //has
     void delHeader(const std::string& key);
     void delCookie(const std::string& key);
-
+    /**
+     * @description: 序列化
+     * @return {*}
+     * @param {ostream&} os
+     */    
     std::ostream& dump(std::ostream& os);
     std::string tostring();
 private:
@@ -302,16 +369,14 @@ private:
     }
     bool has(MapType type,const std::string& key) const;
 
-    uint8_t m_version;
-    HttpStatus m_status;
-    std::string m_reason;
-    std::string m_body;
-    bool m_close;
+    uint8_t m_version;      //http版本
+    HttpStatus m_status;    //响应码状态
+    std::string m_reason;   //状态描述
+    std::string m_body;     //body
+    bool m_close;           //长连接和短连接
 
-    MapType m_headers;
-    MapType m_cookies;
-
-
+    MapType m_headers;      //首部
+    MapType m_cookies;      //
 };
 
 

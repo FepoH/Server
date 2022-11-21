@@ -1,5 +1,9 @@
 #include "tcp_server.h"
 #include "bytearray.h"
+#include "io_manager.h"
+#include "bytearray.h"
+#include "log/log.h"
+#include "config.h"
 
 using namespace fepoh;
 
@@ -22,13 +26,10 @@ void EchoServer::handleClient(Socket::ptr client){
     FEPOH_LOG_DEBUG(s_log_system) << "handle client";
     ByteArray::ptr ba(new ByteArray());
     while(true){
-        // ba->clear();
-        // std::vector<iovec> iov;
-        // ba->getWriteBuffers(iov,1024);
-        std::string buf;
-        buf.resize(1024);
-        //buf = "";
-        int rt = client->recv(&buf[0],1024);
+        ba->clear();
+        std::vector<iovec> iov;
+        ba->getWriteBuffers(iov,1024);
+        int rt = client->recv(&iov[0],1024);
         if(rt == 0){
             FEPOH_LOG_DEBUG(s_log_system) << "client close:" << client->tostring();
             break;
@@ -36,14 +37,12 @@ void EchoServer::handleClient(Socket::ptr client){
             FEPOH_LOG_DEBUG(s_log_system) << "client error.errno = " << errno << ":" << strerror(errno);
             break;
         }else{
-            // ba->setPosition(ba->getPosition() + rt);
-            // //ba->setPosition(0);
-            // if(this->m_type == 0){
-            //     std::cout << ba->toString() << std::flush;
-            // }else{
-            //     std::cout << ba->toHexString() << std::flush;
-            // }
-            std::cout << buf << std::flush;
+            ba->setSize(ba->getSize() + rt);
+            if(this->m_type == 0){
+                std::cout << ba->toString() << std::flush;
+            }else{
+                std::cout << ba->toHexString() << std::flush;
+            }
         }
     }
 }

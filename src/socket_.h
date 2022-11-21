@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 19:11:07
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 21:34:54
+ * @FilePath: /fepoh/workspace/fepoh_server/src/socket_.h
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
 
 #include <memory>
@@ -12,12 +25,16 @@ class Socket : Noncopyable{
 public:
     typedef std::shared_ptr<Socket> ptr;
     typedef std::weak_ptr<Socket> weak_ptr;
-
+    /**
+     * @description: tcp或udp
+     */    
     enum Type{
         TCP = SOCK_STREAM,
         UDP = SOCK_DGRAM
     };
-
+    /**
+     * @description: 协议族
+     */    
     enum Family{
         IPv4 = AF_INET,
         IPv6 = AF_INET6,
@@ -40,35 +57,36 @@ public:
     //创建Unix的UDP Socket
     static Socket::ptr CreateUnixUDPSocket();
 
-
     Socket(int family ,int type , int protocol = 0);
     ~Socket();
+
     //获取和设置超时时间
     uint64_t getSendTimeout();
     void setSendTimeout(uint64_t val);
     uint64_t getRcvTimeout();
     void setRcvTimeout(uint64_t val);
-    //getsockopt
+
+    //getsockopt和setsockopt
     bool getOption(int level,int option,void* res,socklen_t* len);
     template<class T>
     bool getOption(int level,int option,const T& res){
         socklen_t len = sizeof(T);
         return getOption(level,option,(void*)&res,&len);
     }
-    //setsockopt
     bool setOption(int level,int option,void* opVal,socklen_t* len);
     template<class T>
     bool setOption(int level,int option,const T& opVal){
         socklen_t len = sizeof(T);
         return setOption(level,option,(void*)&opVal,&len);
     }
+
     //网络相关操作
     Socket::ptr accept();
     bool bind(const Address::ptr addr);
     bool connect(const Address::ptr addr,uint64_t timeout = -1);
     bool listen(int backlog = SOMAXCONN);
-    //关闭
     bool close();
+
     //发送和接受数据
     ssize_t send(const void* buf,size_t len,int flags = 0);
     ssize_t send(const iovec* buffers,size_t len,int flags = 0);
@@ -81,29 +99,34 @@ public:
     ssize_t recvfrom(void* buf,size_t len,const Address::ptr fromAddr,int flags = 0);
     ssize_t recvfrom(struct iovec* buffers,size_t len,const Address::ptr fromAddr,int flags = 0);
     ssize_t recvmsg(struct msghdr* msg,int flags);
+
     //获取本地地址和远端地址
     Address::ptr getRemoteAddress();
     Address::ptr getLocalAddress();
-    //转字符串,方便debug和查看状态
+
+    //dump
     std::ostream& dump(std::ostream& os) const;
-    //初始化
-    bool init(int sock);
-    bool isValid() const;
-    //获取错误,通过getsockopt
-    int  getError();
-    //取消时间
+    std::string tostring();
+
+    //IO事件相关
     bool cancelRead();
     bool cancelWrite();
     bool cancelAccept();
     bool cancelAll();
-    //
+
+    //属性相关
     int  getSocket() const {return m_sock;}
     int  getFamily() const {return m_family;}
     int  getType() const {return m_type;}
     int  getProtocol() const {return m_protocol;}
     bool isConnected() const {return m_isConnected;}
+public:
+    //初始化
+    bool init(int sock);
+    bool isValid() const;
 
-    std::string tostring();
+    //获取错误,通过getsockopt
+    int  getError();
 private:
     //初始化
     void initSock();

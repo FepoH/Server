@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 19:22:03
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 15:58:18
+ * @FilePath: /fepoh/workspace/fepoh_server/src/socket_.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "socket_.h"
 #include "hook.h"
 #include "log/log.h"
@@ -86,6 +99,7 @@ bool Socket::init(int sock){
 
 void Socket::initSock(){
     int val = 1;
+    //重用端口
     setOption(SOL_SOCKET,SO_REUSEADDR,&val);
     if(m_type == SOCK_STREAM){
         //头文件netinet/tcp.h
@@ -179,6 +193,7 @@ bool Socket::bind(const Address::ptr addr){
     }
     if(FEPOH_UNLIKELY(addr->getFamily() != m_family)){
         FEPOH_LOG_ERROR(s_log_system) << "m_family = " << m_family << ",addr->family = " << addr->getFamily();
+        return false;
     }
     int rt = ::bind(m_sock,addr->getAddr(),addr->getAddrLen());
     if(FEPOH_UNLIKELY(rt != 0)){
@@ -306,7 +321,7 @@ ssize_t Socket::recv(iovec* buffers,size_t len,int flags){
         bzero(&msg,sizeof(msg));
         msg.msg_iov = buffers;
         msg.msg_iovlen = len;
-        return ::sendmsg(m_sock,&msg,flags);
+        return ::recvmsg(m_sock,&msg,flags);
     }
     return -1;
 }

@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-20 02:48:07
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 03:09:37
+ * @LastEditTime: 2022-11-21 16:07:44
  * @FilePath: /fepoh/workspace/fepoh_server/src/fiber.cpp
  * @Description: 
  * 
@@ -102,7 +102,7 @@ Fiber::~Fiber(){
         --t_fiber_count;
         //释放栈空间
         free(m_stack);
-        FEPOH_LOG_DEBUG(s_log_system) << "Fiber::~Fiber.fiber count = " << t_fiber_count << " id = " << m_id ;
+        //FEPOH_LOG_DEBUG(s_log_system) << "Fiber::~Fiber.fiber count = " << t_fiber_count << " id = " << m_id ;
     }
 }
 
@@ -185,6 +185,22 @@ void Fiber::backHold(){
         FEPOH_LOG_ERROR(s_log_system) << "Fiber::swapOut error.rt = " << rt
                 << ".fiber id = " <<m_id;
     }
+}
+
+void Fiber::reset(std::function<void()> cb){
+    FEPOH_ASSERT(m_stack);
+    FEPOH_ASSERT(m_state != Fiber::EXEC);
+    m_cb = cb;
+    if(getcontext(&m_ctx)) {
+        FEPOH_ASSERT1(false, "getcontext");
+    }
+
+    m_ctx.uc_link = nullptr;
+    m_ctx.uc_stack.ss_sp = m_stack;
+    m_ctx.uc_stack.ss_size = m_stacksize;
+
+    makecontext(&m_ctx, &Fiber::Run, 0);
+    m_state = INIT;
 }
 
 Fiber::ptr Fiber::GetMainFiber(){

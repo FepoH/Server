@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 20:19:17
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 20:28:55
+ * @FilePath: /fepoh/workspace/fepoh_server/tests/test_client.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "socket_.h"
 #include "log/log.h"
 
@@ -6,7 +19,7 @@ using namespace fepoh;
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
 void test_client(int port){
-    Address::ptr addr = IPAddress::Lookup("192.168.159.147",port);
+    Address::ptr addr = IPAddress::Lookup("192.168.159.151",port);
     if(!addr){
         FEPOH_LOG_ERROR(s_log_system) << "Look up error";
     }else{
@@ -27,7 +40,7 @@ void test_client(int port){
             FEPOH_LOG_INFO(s_log_system) << buf;
         }
         bzero(buf,1024);
-        sprintf(buf,"%s = %d","client",client);
+        sprintf(buf,"%s = %d","client send",client);
         n = sock->send(buf,strlen(buf));
         sleep(3);
         ++client;

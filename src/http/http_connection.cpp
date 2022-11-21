@@ -18,23 +18,20 @@ std::string HttpResult::tostring(){
     return ss.str();
 }
 
-std::atomic<uint64_t> HttpConnection::m_count = {0};
+std::atomic<uint64_t> HttpConnection::s_count = {0};
 
 HttpConnection::HttpConnection(Socket::ptr sock,bool owner)
     :SocketStream(sock,owner){
-    ++m_count;
+    ++s_count;
     FEPOH_LOG_DEBUG(s_log_system) << "HttpConnection::HttpConnection";
 }
 
 HttpConnection::~HttpConnection(){
-    --m_count;
+    --s_count;
     FEPOH_LOG_DEBUG(s_log_system) << "HttpConnection::~HttpConnection";
 }
 
 HttpResponse::ptr HttpConnection::recvResponse(){
-    //头部解析完成后可以覆盖数据
-    //body size
-    //此处改进
     int max_head_size = HttpResponseParser::GetResponseHeadBufSize();
     int max_size = HttpRequestParser::GetRequestBodyBufSize() + max_head_size;
     HttpResponseParser::ptr parser(new HttpResponseParser());
@@ -50,25 +47,26 @@ HttpResponse::ptr HttpConnection::recvResponse(){
             close();
             return nullptr;
         }
+        //总长度
         total_length += len;
+        //接受到的长度 + 未解析完的长度
         len += offset;
+        //执行解析
         size_t nparser = parser->execute(data,len);
         if(parser->getError()){
+            if(parser->getError() & HPE_INVALID_CONSTANT){
+                FEPOH_LOG_ERROR(s_log_system) << "totol length = " << total_length 
+                            << ",max size" << max_size; 
+            }
             close();
             return nullptr;
         }
         offset = len - nparser;
-        if(offset == max_head_size){
-            FEPOH_LOG_ERROR(s_log_system) << "offset = max_size";
-            close();
-            return nullptr;
-        }
-        if(parser->getError() & HPE_INVALID_CONSTANT){
-            FEPOH_LOG_ERROR(s_log_system) << "totol length = " << total_length 
-                            << ",max size" << max_size; 
-            close();
-            return nullptr;
-        }
+        // if(offset == max_head_size){
+        //     FEPOH_LOG_ERROR(s_log_system) << "offset = max_size";
+        //     close();
+        //     return nullptr;
+        // }
 
         if((!parser->getHeadFinish())&&(total_length > max_head_size * 2)){
             FEPOH_LOG_ERROR(s_log_system) << "totol length = " << total_length 
@@ -147,6 +145,7 @@ HttpResult::ptr HttpConnection::DoRequest(HttpMethod method
             }
         }
         if(strcasecmp(i.first.c_str(),"host") == 0){
+            uri->setHost(i.second);
             has_host = true;
         }
         request->setHeader(i.first,i.second);
@@ -161,6 +160,7 @@ HttpResult::ptr HttpConnection::DoRequest(HttpMethod method
 HttpResult::ptr HttpConnection::DoRequest(HttpRequest::ptr request
                 ,Uri::ptr uri
                 ,uint64_t timeout_ms){
+    
     Address::ptr addr = uri->createAddr();
     if(!addr){
         return HttpResult::ptr(new HttpResult(
@@ -252,6 +252,10 @@ HttpResult::ptr HttpConnectionPool::doRequest(HttpMethod method
             ,uint64_t timeout_ms
             ,const std::map<std::string,std::string>& headers  
             ,const std::string& body){
+    if(!uri){
+        return HttpResult::ptr(new HttpResult(
+                (int)HttpResult::Result::HTTP_INVALID_URL,nullptr,"invalid url"));
+    }
     HttpRequest::ptr request = uri->creatHttpRequest(method);
     bool has_host = false;
     request->setClose(false);

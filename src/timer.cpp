@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 15:37:32
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 21:35:14
+ * @FilePath: /fepoh/workspace/fepoh_server/src/timer.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "timer.h"
 #include "util.h"
 #include "log/log.h"
@@ -61,6 +74,7 @@ bool Timer::refresh() {
     if(it == m_manager->m_timers.end()) {
         return false;
     }
+    //防止数据结构被破坏
     m_manager->m_timers.erase(it);
     m_next =  fepoh::GetCurTimeMs() + m_ms;
     m_manager->m_timers.insert(shared_from_this());
@@ -108,7 +122,9 @@ Timer::ptr TimerManager::addTimer(uint64_t ms, std::function<void()> cb
     return timer;
 }
 
+//条件定时器回调
 static void OnTimer(std::weak_ptr<void> weak_cond, std::function<void()> cb) {
+    //如果条件消失,tmp = nullptr
     std::shared_ptr<void> tmp = weak_cond.lock();
     if(tmp) {
         cb();
@@ -202,155 +218,5 @@ bool TimerManager::hasTimer() {
     ReadLock lock(m_mutex);
     return !m_timers.empty();
 }
-
-
-
-
-
-// bool Timer::TimerCmp::operator()(Timer::ptr lhs,Timer::ptr rhs){
-//     if(!lhs&&!rhs){
-//         return false;
-//     }
-//     if(!lhs){
-//         return true;
-//     }
-//     if(!rhs){
-//         return false;
-//     }
-//     if(lhs->m_trigger < rhs->m_trigger){
-//         return true;
-//     }
-//     if(rhs->m_trigger < lhs->m_trigger) {
-//         return false;
-//     }
-//     return lhs.get() < rhs.get();
-// }
-
-// Timer::Timer(uint64_t ms,TimerManager* manager,std::function<void()> cb,bool recurring)
-//         :m_cb(cb),m_ms(ms),m_recurring(recurring),m_manager(manager){
-//     m_trigger = fepoh::GetCurTimeMs() + m_ms;
-// }
-
-// Timer::Timer(uint64_t trigger):m_trigger(trigger){
-
-// }
-
-// bool Timer::refresh(){
-//     if(!m_manager || !m_cb){
-//         return false;
-//     }
-//     MutexLock locker(m_manager->m_mutex);
-//     auto it = m_manager->m_timers.find(shared_from_this());
-//     if(it == m_manager->m_timers.end()){
-//         return false;
-//     }
-//     m_manager->m_timers.erase(it);
-//     m_trigger = fepoh::GetCurTimeMs() + m_ms;
-//     m_manager->m_timers.insert(shared_from_this());
-//     return true;
-// }
-
-// void Timer::cancel(){
-//     if(!m_manager){
-//         m_cb = nullptr;
-//         return ;
-//     }
-//     MutexLock locker(m_manager->m_mutex);
-//     auto it = m_manager->m_timers.find(shared_from_this());
-//     if(it != m_manager->m_timers.end()){
-//         m_manager->m_timers.erase(it);
-//     }
-//     m_cb = nullptr;
-//     m_manager = nullptr;
-// }
-
-
-// bool Timer::isExpired(){
-//     return (m_trigger <= fepoh::GetCurTimeMs())&&(!m_cb);
-// }
-
-// //已经过时的和无回调函数的timer不能插入
-// void TimerManager::addTimer(Timer::ptr timer){
-//     MutexLock lock(m_mutex);
-//     m_timers.insert(timer);
-// }
-
-// Timer::ptr TimerManager::addTimer(uint64_t ms, std::function<void()> cb
-//                                   ,bool recurring) {
-//     Timer::ptr timer(new Timer(ms,this ,cb ,recurring));
-//     addTimer(timer);
-//     return timer;
-// }
-
-// static void OnTimer(std::weak_ptr<void> weak_cond, std::function<void()> cb) {
-//     std::shared_ptr<void> tmp = weak_cond.lock();
-//     if(tmp) {
-//         cb();
-//     }
-// }
-
-// Timer::ptr TimerManager::addConditionTimer(uint64_t ms, std::function<void()> cb
-//         ,std::weak_ptr<void> weak_cond,bool recurring){
-//     return addTimer(ms, std::bind(&OnTimer, weak_cond, cb), recurring);
-// }
-
-
-// void TimerManager::delTimer(Timer::ptr timer){
-//     MutexLock lock(m_mutex);
-//     auto it = m_timers.find(timer);
-//     if(it != m_timers.end()){
-//         (*it)->m_manager = nullptr;
-//         m_timers.erase(it);
-//     }
-// }
-
-// void TimerManager::clrTimer(){
-//     MutexLock lock(m_mutex);
-//     for(auto it= m_timers.begin();it!=m_timers.end();++it){
-//         (*it)->m_manager = nullptr;
-//         (*it)->m_cb = nullptr;
-//     }
-//     m_timers.clear();
-// }
-
-// uint64_t TimerManager::getMinTrigger(){
-//     if(hasTimer()){
-//         uint64_t minTime = (*(m_timers.begin()))->getTrigger();
-//         return minTime > GetCurTimeMs() ? minTime - GetCurTimeMs() : 0 ;
-//     }
-//     return ~0ull;
-// }
-
-
-// void TimerManager::listAllExpired(std::list<std::function<void()>>& listCbs){
-//     Mutex locker(m_mutex);
-//     uint64_t cur = fepoh::GetCurTimeMs();
-//     std::list<Timer::ptr> timers;
-//     if(m_timers.empty()){
-//         return ;
-//     }
-//     auto it = m_timers.begin();
-//     for(;it != m_timers.end();++it){
-//         if((*it)->getTrigger() < cur){
-//             timers.push_back(*it);
-//             continue;
-//         }
-//         break;
-//     }
-//     m_timers.erase(m_timers.begin(),it);
-//     for(auto timer:timers){
-//         listCbs.push_back(timer->m_cb);
-//         if(!timer->m_recurring){
-//             continue;
-//         }
-//         timer->m_trigger = cur + timer->m_ms;
-//         m_timers.insert(timer);
-//     }
-// }
-
-// bool TimerManager::hasTimer(){
-//     MutexLock lock(m_mutex);
-//     return !m_timers.empty();
-// }
 
 }//namespace

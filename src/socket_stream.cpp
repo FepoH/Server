@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-17 18:14:57
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 20:36:48
+ * @FilePath: /fepoh/workspace/fepoh_server/src/socket_stream.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "socket_stream.h"
 #include "log/log.h"
 #include <vector>
@@ -65,6 +78,7 @@ int SocketStream::write(ByteArray::ptr ba,size_t length) {
     ba->getReadBuffers(iovs,length);
     int rt = m_socket->send(&iovs[0],length);
     if(rt > 0){
+        //改变已读数据大小
         ba->setReadPos(ba->getReadedSize() + rt);
     }
     return rt;

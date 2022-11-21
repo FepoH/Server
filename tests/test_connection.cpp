@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-19 02:15:08
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 17:26:45
+ * @FilePath: /fepoh/workspace/fepoh_server/tests/test_connection.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "http/http_connection.h"
 #include "log/log.h"
 #include "io_manager.h"
@@ -69,6 +82,6 @@ void test1(){
 int main(){
     test1();
     FEPOH_LOG_DEBUG(s_log_system) << pool->getTotalSize() 
-            << " "  << pool->m_conns.size() << "  " << HttpConnection::m_count;
+            << " "  << pool->m_conns.size() << "  " << HttpConnection::s_count;
     
 }

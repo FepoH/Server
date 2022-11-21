@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-18 23:35:05
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 17:34:24
+ * @FilePath: /fepoh/workspace/fepoh_server/src/io_manager.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "io_manager.h"
 #include "parameter.h"
 #include "macro.h"
@@ -35,12 +48,15 @@ void IOManager::FdContext::resetContext(EventContext& ctx){
 
 void IOManager::FdContext::triggerContext(Event ev){
     FEPOH_ASSERT(ev);
+    //当前事件
     ev = (Event)(ev&events);
+    //剩余事件
     events = (Event)(events & (~ev));
     if(!ev){
         return ;
     }
     EventContext& ctx = getContext(ev);
+    FEPOH_ASSERT(ctx.scheduler);
     ctx.scheduler->schedule(ctx.fiber);
     ctx.scheduler = nullptr;
     ctx.fiber = nullptr;
@@ -49,17 +65,20 @@ void IOManager::FdContext::triggerContext(Event ev){
 IOManager::IOManager(const std::string& name,size_t threadCount,bool use_caller)
         :ScheduleManager(name,threadCount,use_caller){
     int rt = 0;
+    //创建epollfd
     m_epollfd = epoll_create(5000);
     FEPOH_ASSERT(m_epollfd != -1);
+    //创建管道
     rt = pipe(m_pipefd);
     FEPOH_ASSERT1(rt != -1,"IOManager pipefd create error");
+    //预设64个文件描述符
     contextResize(64);
     epoll_event event;
     memset(&event,0,sizeof(epoll_event));
     event.data.fd = m_pipefd[0];
     //读事件和边缘触发
     event.events = EPOLLIN|EPOLLET;
-    
+
     rt = epoll_ctl(m_epollfd,EPOLL_CTL_ADD,m_pipefd[0],&event);
     FEPOH_ASSERT1(rt != -1,"IOManager epoll control error");
 }

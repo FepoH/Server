@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-11 12:36:06
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-20 21:34:15
+ * @FilePath: /fepoh/workspace/fepoh_server/src/hook.h
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #pragma once
 
 #include <unistd.h>

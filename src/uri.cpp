@@ -1,3 +1,16 @@
+/*
+ * @Author: fepo_h
+ * @Date: 2022-11-20 21:31:32
+ * @LastEditors: fepo_h
+ * @LastEditTime: 2022-11-21 15:00:57
+ * @FilePath: /fepoh/workspace/fepoh_server/src/uri.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by FepoH Fepo_H@163.com, All Rights Reserved. 
+ * @version: V1.0.0
+ * @Mailbox: Fepo_H@163.com
+ * @Descripttion: 
+ */
 #include "uri.h"
 #include "log/log.h"
 #include "http/http_parser/http_nodejs_parser.h"
@@ -9,8 +22,10 @@ static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
 Uri::ptr Uri::CreateUri(const std::string& uri){
     Uri::ptr rt(new Uri(uri));
-    rt->parserUri();
-    return rt;
+    if(rt->parserUri()){
+        return rt;
+    }
+    return nullptr;
 }
 
 Uri::Uri(const std::string& uri):m_uri(uri){
@@ -34,6 +49,9 @@ Address::ptr Uri::createAddr(){
 
 http::HttpRequest::ptr Uri::creatHttpRequest(http::HttpMethod method
         ,uint8_t version,bool close){
+    if(!m_isInit){
+        return nullptr;
+    }
     http::HttpRequest::ptr request(new http::HttpRequest(version,close));
     request->setFragment(m_fragment);
     request->setMethod(method);
@@ -43,10 +61,14 @@ http::HttpRequest::ptr Uri::creatHttpRequest(http::HttpMethod method
     return request;
 }
 
-void Uri::modifyHttpRequest(http::HttpRequest::ptr request){
+bool Uri::modifyHttpRequest(http::HttpRequest::ptr request){
+    if(!m_isInit){
+        return false;
+    }
     request->setFragment(m_fragment);
     request->setPath(getPath());
     request->setQuery(m_query);
+    return true;
 }
 
 
@@ -66,12 +88,16 @@ std::string Uri::tostring(){
     return ss.str();
 }
 
-void Uri::parserUri(){
+bool Uri::parserUri(){
     struct http_parser_url url_parser;
     http_parser_url_init(&url_parser);
     const char* buf = m_uri.c_str();
     int len = m_uri.size();
-    http_parser_parse_url(buf, len, 0, &url_parser);
+    int rt = http_parser_parse_url(buf, len, 0, &url_parser);
+    if(rt != 0){
+        FEPOH_LOG_ERROR(s_log_system) << "uri parse error";
+        return false;
+    }
     if (url_parser.field_set & (1 << UF_SCHEMA)) {
         m_schema = std::string(buf + url_parser.field_data[UF_SCHEMA].off,url_parser.field_data[UF_SCHEMA].len);
     }
@@ -94,6 +120,8 @@ void Uri::parserUri(){
     if (url_parser.field_set & (1 << UF_FRAGMENT)) {
         m_fragment = std::string(buf + url_parser.field_data[UF_FRAGMENT].off,url_parser.field_data[UF_FRAGMENT].len);
     }
+    m_isInit = true;
+    return true;
 }
 
 uint32_t Uri::getPort(){
@@ -105,6 +133,15 @@ uint32_t Uri::getPort(){
     }
     if(m_schema == "https"){
         return 443;
+    }
+    if(m_schema == "ftp"){
+        return 21;
+    }
+    if(m_schema == "telnet"){
+        return 23;
+    }
+    if(m_schema == "smtp"){
+        return 25;
     }
     return 0;
 }
