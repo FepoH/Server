@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-10 00:37:26
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 13:50:20
+ * @LastEditTime: 2022-11-22 16:30:05
  * @FilePath: /fepoh/workspace/fepoh_server/src/schedule_manager.h
  * @Description: 
  * 
@@ -142,11 +142,6 @@ class ScheduleManager : public Noncopyable{
          */        
         virtual void idle();
         /**
-         * @description: 是否停止协程调度器
-         * @return {*}
-         */        
-        virtual bool isStop();
-        /**
          * @description: 唤醒线程
          * @return {*}
          */        
@@ -155,12 +150,13 @@ class ScheduleManager : public Noncopyable{
          * @description: 停止
          * @return {*}
          */        
-        bool m_isStop = true;
+        bool m_stopping = true;
+        bool m_autoStop = false;
         /**
          * @description: 停止:用于子类
          * @return {*}
          */        
-        bool m_isStopping = false;
+        virtual bool stopping();
     private:
         /**
          * @description: 无锁添加任务

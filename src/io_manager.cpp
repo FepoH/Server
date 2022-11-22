@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-18 23:35:05
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 17:34:24
+ * @LastEditTime: 2022-11-22 19:57:43
  * @FilePath: /fepoh/workspace/fepoh_server/src/io_manager.cpp
  * @Description: 
  * 
@@ -71,6 +71,8 @@ IOManager::IOManager(const std::string& name,size_t threadCount,bool use_caller)
     //创建管道
     rt = pipe(m_pipefd);
     FEPOH_ASSERT1(rt != -1,"IOManager pipefd create error");
+    rt = fcntl(m_pipefd[0], F_SETFL, O_NONBLOCK);
+    FEPOH_ASSERT1(rt != -1,"IOManager pipefd fcntl error");
     //预设64个文件描述符
     contextResize(64);
     epoll_event event;
@@ -84,9 +86,7 @@ IOManager::IOManager(const std::string& name,size_t threadCount,bool use_caller)
 }
 
 IOManager::~IOManager(){
-    if(!m_isStop){
-        stop();
-    }
+    stop();
     close(m_epollfd);
     close(m_pipefd[0]);
     close(m_pipefd[1]);
@@ -253,8 +253,8 @@ void IOManager::notice() {
     FEPOH_ASSERT(rt == 8);
     return ;
 }
-bool IOManager::isStop() {
-    return ScheduleManager::isStop()
+bool IOManager::stopping() {
+    return ScheduleManager::stopping()
          &&m_pendingEventCount == 0
          &&m_timers.empty();
 }
@@ -268,7 +268,7 @@ void IOManager::idle() {
     });
 
     while(true){
-        if(isStop()){
+        if(stopping()){
             FEPOH_LOG_DEBUG(s_log_system) <<"idle break";
             break;
         }
@@ -282,7 +282,7 @@ void IOManager::idle() {
             }
             rt = epoll_wait(m_epollfd,events,MAX_EVENTS,(int)timeout);
             if(rt < 0 && errno == EINTR){
-
+                FEPOH_LOG_ERROR(s_log_system) << "epoll error";
             }else{
                 break;
             }
@@ -305,7 +305,7 @@ void IOManager::idle() {
             FdContext* fd_ctx = (FdContext*)event.data.ptr;
             MutexLock lock(fd_ctx->mutex);
             //出现连接被对方关闭或挂起,事件全部触发
-            if(event.events & (EPOLLERR | EPOLLHUP)){
+            if(event.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)){
                 event.events |=(EPOLLIN | EPOLLOUT) & fd_ctx->events;
             }
             int real_events = NONE;
@@ -330,11 +330,12 @@ void IOManager::idle() {
                             <<event.events <<",m_epollfd = " <<m_epollfd;
                 continue;
             }
-
+            
             if(real_events & READ) {
                 fd_ctx->triggerContext(READ);
                 --m_pendingEventCount;
             }
+            
             if(real_events & WRITE){
                 fd_ctx->triggerContext(WRITE);
                 --m_pendingEventCount;
@@ -358,5 +359,17 @@ void IOManager::contextResize(size_t size){
     }
 }
 
+std::string IOManager::tostring(){
+    ReadLock lock(m_mutex);
+    std::stringstream ss;
+
+    for(auto& item:m_fdContexts){
+        if(item->fd != 6){
+            continue;
+        }
+        ss << item->fd << " --- " << item->events << std::endl;    
+    }
+    return ss.str();
+}
 
 }//namespace

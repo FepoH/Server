@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-21 15:05:30
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 15:05:30
+ * @LastEditTime: 2022-11-22 19:59:36
  * @FilePath: /fepoh/workspace/fepoh_server/examples/my_http.cpp
  * @Description: 
  * 
@@ -43,8 +43,7 @@ void load_log(){
 
 int main(){
     Config::LoadFromJson("/home/fepoh/workspace/fepoh_server/resource/config/log.json");
-    load_log();
-    IOManager iom("",2);
+    IOManager iom("",1);
     iom.schedule(run);
     iom.start();
 }

@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-21 14:32:45
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 14:50:17
+ * @LastEditTime: 2022-11-22 20:26:25
  * @FilePath: /fepoh/workspace/fepoh_server/src/http/http_server.cpp
  * @Description: 
  * 
@@ -36,8 +36,10 @@ void HttpServer::handleClient(Socket::ptr client) {
         }
         HttpResponse::ptr rsp(new HttpResponse(req->getVersion(),req->getClose() || !m_isKeepalive));
         m_dispath->handle(req,rsp,session);
-        //rsp->setBody("hello darling-ls");
         session->sendResponse(rsp);
+        if(!m_isKeepalive || req->getClose()) {
+            break;
+        }
     }while(m_isKeepalive);
     session->close();
 }

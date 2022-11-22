@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 02:15:08
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 17:26:45
+ * @LastEditTime: 2022-11-22 00:27:28
  * @FilePath: /fepoh/workspace/fepoh_server/tests/test_connection.cpp
  * @Description: 
  * 
@@ -15,28 +15,30 @@
 #include "log/log.h"
 #include "io_manager.h"
 #include "address.h"
+#include "config.h"
+#include <atomic>
 
 using namespace fepoh;
 using namespace fepoh::http;
 
 static Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
-int count = 0;
+std::atomic<int> count = {0};
 
 Timer::ptr timer;
-HttpConnectionPool::ptr pool;
+
 void test_poll(){
-    pool.reset(new HttpConnectionPool("www.sylar.top"
-                    ,"",80,100,1000 * 10 , 5));
+    HttpConnectionPool::ptr pool(new HttpConnectionPool("www.sylar.top"
+                    ,"",80,50,1000 * 30 , 500));
     timer = fepoh::IOManager::GetThis()->addTimer(10,[pool,timer](){
         HttpResult::ptr res = pool->doGet("/",1000);
-        //FEPOH_LOG_DEBUG(s_log_system) << "-------" << res->tostring() << "----------------";
         ++count;
-        if(count == 500){
+        if(count >= 500){
+            
             timer->cancel();
+            
         }
     },true);
-    FEPOH_LOG_DEBUG(s_log_system) << pool->getTotalSize();
 }
 
 
@@ -62,8 +64,6 @@ void run(){
     if(!rsp){
         FEPOH_LOG_ERROR(s_log_system) << "recv error";
     }
-    std::cout << req->tostring() << std::endl << "-------------" << rsp->tostring() <<std::endl;
-    std::cout <<  "-------------" <<std::endl;
     HttpResult::ptr res = HttpConnection::DoGet("http://www.baidu.com:80",300);
     if(!res->response){
         FEPOH_LOG_DEBUG(s_log_system) << res->result;
@@ -80,8 +80,8 @@ void test1(){
 }
 
 int main(){
+    Config::LoadFromJson("/home/fepoh/workspace/fepoh_server/resource/config/log.json");
     test1();
-    FEPOH_LOG_DEBUG(s_log_system) << pool->getTotalSize() 
-            << " "  << pool->m_conns.size() << "  " << HttpConnection::s_count;
-    
+
+    FEPOH_LOG_DEBUG(s_log_system) << HttpConnection::s_count;
 }

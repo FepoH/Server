@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-20 18:09:14
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 18:09:41
+ * @LastEditTime: 2022-11-22 19:55:10
  * @FilePath: /fepoh/workspace/fepoh_server/src/hook.cpp
  * @Description: 
  * 
@@ -12,6 +12,7 @@
  * @Descripttion: 
  */
 #include "hook.h"
+#include "macro.h"
 #include "fiber.h"
 #include "io_manager.h"
 #include "timer.h"
@@ -92,31 +93,23 @@ struct timer_info{
     int canceled = 0;
 };
 
-static std::atomic<int> counta = {0};
-
 template<typename OriginFun,typename ... Args>
 static ssize_t do_io(int fd,OriginFun fun,const char* hook_fun_name
         ,uint32_t event, int timeout_so , Args&& ... args) {
     //没有被hook
-    ++counta;
-    std::cout << "111-" << counta << std::endl;
     if(!fepoh::t_hook_enable){
         return fun(fd, std::forward<Args>(args)...);
     }
-    std::cout << "222-" << counta <<std::endl;
     fepoh::FdCtx::ptr fd_ctx = fepoh::FdManager::GetInstance()->get(fd);
-    std::cout << "333-" << counta <<std::endl;
     //没有获取到fd_ctx
     if(!fd_ctx){
         return fun(fd, std::forward<Args>(args)...);
     }
-    std::cout << "444-" << counta <<std::endl;
     //文件被关闭
     if(fd_ctx->isClose()){
         errno = EBADF;
         return -1;
     }
-    std::cout << "555-" <<std::endl;
     //不是socket或者被用户设置了nonblock
     //用户已经设置非阻塞,就已经不会阻塞,直接返回即可
     if(!fd_ctx->isSocket() || fd_ctx->getUserNonblock()){
@@ -155,6 +148,7 @@ retry:
         //添加事件
         int rt = iom->addEvent(fd,(fepoh::IOManager::Event)(event));
         if(rt){
+            FEPOH_ASSERT(false);
             //添加事件错误,直接log并返回
             FEPOH_LOG_DEBUG(s_log_system) << hook_fun_name << " addEvent("
                 <<fd <<", " <<event <<")";

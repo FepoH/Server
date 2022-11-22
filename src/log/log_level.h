@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 14:15:06
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-19 14:34:51
+ * @LastEditTime: 2022-11-22 20:01:02
  * @FilePath: /fepoh/workspace/fepoh_server/src/log/log_level.h
  * @Description: 日志级别类
  * 
@@ -22,8 +22,8 @@ public:
 	enum Level{
 		UNKOWN = 0,		//未知级别
 		DEBUG,			//debug
-		INFO,			//信息
 		WARN,			//警告
+		INFO,			//信息
 		ERROR,			//错误
 		FATAL			//致命错误
 	};

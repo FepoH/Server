@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-21 14:06:52
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 14:14:06
+ * @LastEditTime: 2022-11-22 19:58:37
  * @FilePath: /fepoh/workspace/fepoh_server/src/http/http_session.cpp
  * @Description: 
  * 
@@ -60,11 +60,11 @@ HttpRequest::ptr HttpSession::recvRequrest(){
             return nullptr;
         }
         offset = len - nparser;
-        // if(offset == max_size){
-        //     FEPOH_LOG_ERROR(s_log_system) << "offset = max_size";
-        //     close();
-        //     return nullptr;
-        // }
+        if(offset == max_size){
+            FEPOH_LOG_ERROR(s_log_system) << "offset = max_size";
+            close();
+            return nullptr;
+        }
 
         //头部数据过大
         if((!parser->getHeadFinish())&&(total_length > max_head_size)){
@@ -86,7 +86,6 @@ int HttpSession::sendResponse(HttpResponse::ptr response){
     response->dump(ss);
     std::string str = ss.str();
     return writeFixSize(str.c_str(),str.size());
-
 }
 
 

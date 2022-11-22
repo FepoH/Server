@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-20 19:22:03
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 15:58:18
+ * @LastEditTime: 2022-11-22 19:55:33
  * @FilePath: /fepoh/workspace/fepoh_server/src/socket_.cpp
  * @Description: 
  * 
@@ -172,6 +172,9 @@ bool Socket::setOption(int level,int option,void* opVal,socklen_t* len){
 
 Socket::ptr Socket::accept(){
     Socket::ptr sock(new Socket(m_family,m_type,m_protocol));
+    if(!sock){
+        return nullptr;
+    }
     int rt = ::accept(m_sock,nullptr,nullptr);
     if(rt == -1){
         FEPOH_LOG_ERROR(s_log_system) << "Socket::accept error.errno = " 

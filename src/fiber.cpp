@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-20 02:48:07
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 16:07:44
+ * @LastEditTime: 2022-11-22 19:54:44
  * @FilePath: /fepoh/workspace/fepoh_server/src/fiber.cpp
  * @Description: 
  * 
@@ -61,7 +61,7 @@ Fiber::Fiber():m_stacksize(0),m_state(State::EXEC){
 Fiber::Fiber(std::function<void()> cb,uint32_t stacksize,bool use_caller)
         :m_cb(cb){
     //最少分配10k,太少了容易栈溢出导致错误,为防止不必要的麻烦,故定义最小栈空间;
-    m_stacksize = stacksize >= 10 * 1024 ? stacksize : g_fiber_stacksize->getValue();
+    m_stacksize = stacksize >= 128 * 1024 ? stacksize : g_fiber_stacksize->getValue();
     m_id = ++t_fiber_id;
     ++t_fiber_count;
     m_state = State::INIT;
@@ -84,7 +84,7 @@ Fiber::Fiber(std::function<void()> cb,uint32_t stacksize,bool use_caller)
         //use_caller使用
         makecontext(&m_ctx,&Fiber::ScheduleRun,0);
     }
-    FEPOH_LOG_DEBUG(s_log_system) << "Fiber::Fiber.fiber id = " << m_id;
+    //FEPOH_LOG_DEBUG(s_log_system) << "Fiber::Fiber.fiber id = " << m_id;
 }
 
 Fiber::~Fiber(){
@@ -102,7 +102,6 @@ Fiber::~Fiber(){
         --t_fiber_count;
         //释放栈空间
         free(m_stack);
-        //FEPOH_LOG_DEBUG(s_log_system) << "Fiber::~Fiber.fiber count = " << t_fiber_count << " id = " << m_id ;
     }
 }
 

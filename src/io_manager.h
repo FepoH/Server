@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-20 15:48:39
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 16:00:38
+ * @LastEditTime: 2022-11-22 19:32:37
  * @FilePath: /fepoh/workspace/fepoh_server/src/io_manager.h
  * @Description: 
  * 
@@ -107,6 +107,7 @@ public:
      * @param {int} fd
      */    
     int cancelAll(int fd);
+    std::string tostring();
 public:
     /**
      * @description: 获取当前线程的IO调度器
@@ -123,7 +124,7 @@ protected:
      * @description: 是否停止
      * @return {*}
      */    
-    bool isStop() override;
+    bool stopping() override;
     /**
      * @description: 空闲回调:基于epoll
      * @return {*}

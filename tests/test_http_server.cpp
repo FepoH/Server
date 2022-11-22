@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-21 14:53:11
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 14:55:16
+ * @LastEditTime: 2022-11-22 19:56:47
  * @FilePath: /fepoh/workspace/fepoh_server/tests/test_http_server.cpp
  * @Description: 
  * 
@@ -14,6 +14,7 @@
 #include "http/http_server.h"
 #include "io_manager.h"
 #include "log/log.h"
+#include "config.h"
 
 using namespace fepoh;
 using namespace fepoh::http;
@@ -41,7 +42,9 @@ void run(){
 }
 
 int main(){
-    IOManager iom;
+    Config::LoadFromJson("/home/fepoh/workspace/fepoh_server/resource/config/log.json");
+    
+    IOManager iom("",1);
     iom.schedule(run);
     iom.start();
 }

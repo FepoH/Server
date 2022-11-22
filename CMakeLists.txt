@@ -108,6 +108,7 @@ fepoh_add_executable(test_http_server "tests/test_http_server.cpp" fepoh_server 
 
 fepoh_add_executable(test_uri "tests/test_uri.cpp" fepoh_server "${LIB_LIB}")
 fepoh_add_executable(test_connection "tests/test_connection.cpp" fepoh_server "${LIB_LIB}")
+
 # #examples
 fepoh_add_executable(echo_server "examples/echo_server.cpp" fepoh_server "${LIB_LIB}")
 fepoh_add_executable(my_http "examples/my_http.cpp" fepoh_server "${LIB_LIB}")

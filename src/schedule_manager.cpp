@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-20 02:49:31
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 14:10:35
+ * @LastEditTime: 2022-11-22 19:45:39
  * @FilePath: /fepoh/workspace/fepoh_server/src/schedule_manager.cpp
  * @Description: 
  * 
@@ -56,10 +56,10 @@ ScheduleManager::ScheduleManager(const std::string& name,uint32_t thrCount,bool 
 }
 
 ScheduleManager::~ScheduleManager(){
-    if(!m_isStop){
+    FEPOH_ASSERT(m_stopping);
+    if(!m_autoStop){
         stop();
     }
-    FEPOH_ASSERT(m_isStop);
     if(GetThis() == this){
         t_scheduler = nullptr;
     }
@@ -69,9 +69,11 @@ void ScheduleManager::start(){
     FEPOH_LOG_DEBUG(s_log_system)<< "ScheduleManager::start";
     MutexLock lock(m_mutex);
     //防止启动后再次启动,只能启动-停止-启动...
-    FEPOH_ASSERT(m_isStop);
+    if(!m_stopping){
+        return ;
+    }
+    m_stopping = false;
     FEPOH_ASSERT(m_threads.empty());
-    m_isStop = false;
     for(int i=0;i<m_threadCount;++i){
         m_threads.push_back(Thread::ptr(new Thread(std::bind(&ScheduleManager::run,this)
                             ,(m_name.empty() ? "thr_" : m_name + "thr_") + std::to_string(i))));
@@ -84,20 +86,20 @@ void ScheduleManager::start(){
 
 void ScheduleManager::stop(){
     FEPOH_LOG_DEBUG(s_log_system)<< "ScheduleManager::stop";
-    m_isStop=true;
-    //有多少个线程,notice多少次
-    for(size_t i=0;i<m_threadCount;++i){
-        notice();
-    }
+    m_autoStop = true;
     if(t_root_fiber != Fiber::GetMainFiber()){
-        notice();
-    }
-    if(t_root_fiber != Fiber::GetMainFiber()){
-        if(!isStop()){
+        if(!stopping()){
             //root_fiber-->main_fiber
             t_root_fiber->call();
         }
     }
+    // //有多少个线程,notice多少次
+    // for(size_t i=0;i<m_threadCount;++i){
+    //     notice();
+    // }
+    // if(t_root_fiber != Fiber::GetMainFiber()){
+    //     notice();
+    // }
     //减少智能指针引用计数
     std::vector<Thread::ptr> thrs;
     {
@@ -148,7 +150,7 @@ void ScheduleManager::run(){
         Fiber::ptr ft = fc.getTask();
         //如果是协程，且不处于终止状态
         if(ft != nullptr && ft->getState()!=Fiber::TERM && ft->getState() != Fiber::EXCEPT){
-            ft->swapIn();
+                  ft->swapIn();
             --m_activeThreadCount;
             fc.reset();
         }else{//没有任务执行，执行idle
@@ -175,27 +177,33 @@ void ScheduleManager::notice(){
     FEPOH_LOG_DEBUG(s_log_system)<<"notice";
 }
 
+bool ScheduleManager::stopping(){
+    MutexLock lock(m_mutex);
+    return m_autoStop && m_stopping
+         &&m_tasks.empty()&&m_activeThreadCount == 0; 
+}
+
 //空闲任务
 void ScheduleManager::idle(){
-    while(!isStop()){
+    while(!stopping()){
         Fiber::GetThis()->swapOutHold();
     }
 }
 
 //单个添加任务
 void ScheduleManager::schedule(Task task){
-    MutexLock locker(m_mutex);
+    Mutex lock(m_mutex);
     scheduleNoLock(task);
 }
 
 void ScheduleManager::schedule(std::function<void()> cb){
     Task task(cb);
-    scheduleNoLock(task);
+    schedule(task);
 }
 
 void ScheduleManager::schedule(Fiber::ptr fiber){
     Task task(fiber);
-    scheduleNoLock(task);
+    schedule(task);
 }
 
 void ScheduleManager::scheduleNoLock(Task task){
@@ -211,11 +219,11 @@ Fiber* ScheduleManager::GetRootFiber(){
     return t_root_fiber.get();
 }
 
-bool ScheduleManager::isStop(){
-    return m_isStop
-         &&m_tasks.empty()
-         &&m_activeThreadCount==0;
-}
+// bool ScheduleManager::isStop(){
+//     return m_isStop
+//          &&m_tasks.empty()
+//          &&m_activeThreadCount==0;
+// }
 
 ScheduleManager* ScheduleManager::GetThis(){
     return t_scheduler;
@@ -239,7 +247,9 @@ Fiber::ptr Task::getTask(){
         return m_fiber;
     }
     if(m_cb){
-        return Fiber::ptr(new Fiber(m_cb));
+        m_fiber.reset(new Fiber(m_cb));
+        m_cb = nullptr;
+        return m_fiber;
     }
     return nullptr;
 }

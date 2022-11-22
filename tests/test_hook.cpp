@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-20 19:37:54
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 19:46:44
+ * @LastEditTime: 2022-11-22 16:34:44
  * @FilePath: /fepoh/workspace/fepoh_server/tests/test_hook.cpp
  * @Description: 
  * 
@@ -30,7 +30,7 @@ static fepoh::Logger::ptr s_log_system = FEPOH_LOG_NAME("system");
 
 
 void test_hook(){
-    IOManager iom;
+    IOManager iom("",3);
     iom.schedule([](){
         sleep(2);
         FEPOH_LOG_DEBUG(s_log_system)<<"sleep2";
@@ -84,7 +84,7 @@ int main(int argc ,char * argv[]){
         return 0;
     } 
     int port = atoi(argv[1]);
-    fepoh::IOManager iom;
+    fepoh::IOManager iom("",3);
     iom.schedule([port](){
         FEPOH_LOG_DEBUG(s_log_system) << "at task";
         test_io(port);

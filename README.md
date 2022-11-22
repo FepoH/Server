@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 17:32:26
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-20 22:38:16
+ * @LastEditTime: 2022-11-22 20:17:11
  * @FilePath: /fepoh/workspace/fepoh_server/README.md
  * @Description: 
  * 
@@ -175,54 +175,58 @@ void test1(){
 
 ## Stream模块
 ### 功能
-+ 封装Socket读写操作
++ 封装Socket读写操作,实现继承类sock_stream操作对socket的读写
 
 ## Http模块
-+ 封装http请求,http响应,http_parser
++ 封装http请求,http响应,http_parser,uri
++ 封装http服务端和http请求端相关操作
++ 封装连接池
 
+## 其他模块
++ util,marco,nocopyable.endian...
 
-## json C++
-
-### 语法规则:
-+ 数据存储在`名称/值`对中
-+ 数据由`逗号,`分隔
-+ 使用`\`来转义字符
-+ 使用`{}`保存对象
-+ 中括号`[]`保存数组,数组可以包含多个对象
-
-## JSON的两种结构:
-**对象:**大括号`{}`保存的对象是一个无序的名称/值对集合。一个对象以左括号`{ 开始, 右括号 }`结束，每个"键"后跟一个冒号`:`名称/值对使用逗号`,`分隔。名称是string
-
-
-
-**数组:**中括号`[]`保存的数组是值(value)的有序集合。一个数组以左中括号`[开始， 右中括号 ]`结束，值之间使用逗号,分隔。值（value）可以是双引号括起来的字符串（string）、数值(number)、true、false、 null、对象（object）或者数组（array），它们是可以嵌套。
-
-
-**名称/值对:**
+## 性能测试
+### 采用ab进行压测
 ```
-"name" : "周乐莎"
-```
+//压测数据
+//单线程
+Server Software:        epoh/1.0.0
+Server Hostname:        192.168.88.129
+Server Port:            8020
 
-**JSON值:**
-```
-数字(整数或浮点数),字符串(在双引号中),逻辑值(true和false),数组(在中括号中),对象(在大括号中),null
-```
+Document Path:          /
+Document Length:        130 bytes
 
-```
-{
-    "sites": [
-        { "name":"菜鸟教程" , "url":"www.runoob.com" }, 
-        { "name":"google" , "url":"www.google.com" }, 
-        { "name":"微博" , "url":"www.weibo.com" }
-    ]
-}
-```
+Concurrency Level:      200
+Time taken for tests:   63.946 seconds
+Complete requests:      1000000
+Failed requests:        0
+Write errors:           0
+Non-2xx responses:      1000000
+Total transferred:      238000000 bytes
+HTML transferred:       130000000 bytes
+Requests per second:    15638.31 [#/sec] (mean)/14680.81 [#/sec] (mean)/14849.82 [#/sec] (mean)
+Time per request:       12.789 [ms] (mean)
+Time per request:       0.064 [ms] (mean, across all concurrent requests)
+Transfer rate:          3634.69 [Kbytes/sec] received
 
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    4  60.0      1    3031
+Processing:     2    8   3.3      8     409
+Waiting:        1    8   3.2      8     408
+Total:          5   13  60.2      9    3039
 
-```
-yaml问题:
-在头文件中调用没有问题,但是在cpp文件中调用却出现以下错误
-libfepoh_server.so：对‘YAML::Load(std::string const&)’未定义的引用
+Percentage of the requests served within a certain time (ms)
+  50%      9
+  66%      9
+  75%     10
+  80%     10
+  90%     12
+  95%     13
+  98%     14
+  99%     16
+ 100%   3039 (longest request)
 
-
+//多线程含有一个偶发bug,实在找不到...,暂未测测试
 ```

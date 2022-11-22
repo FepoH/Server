@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-19 02:14:32
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 17:56:35
+ * @LastEditTime: 2022-11-21 23:58:26
  * @FilePath: /fepoh/workspace/fepoh_server/src/http/http_connection.h
  * @Description: 
  * 
@@ -157,6 +157,8 @@ public:
                       ,uint32_t max_size
                       ,uint64_t max_alive_time
                       ,uint32_t max_request);
+
+    ~HttpConnectionPool();
 
     HttpResult::ptr doGet(const std::string& url
                 ,uint64_t timeout_ms

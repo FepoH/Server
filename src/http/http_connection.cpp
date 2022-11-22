@@ -23,12 +23,10 @@ std::atomic<uint64_t> HttpConnection::s_count = {0};
 HttpConnection::HttpConnection(Socket::ptr sock,bool owner)
     :SocketStream(sock,owner){
     ++s_count;
-    FEPOH_LOG_DEBUG(s_log_system) << "HttpConnection::HttpConnection";
 }
 
 HttpConnection::~HttpConnection(){
     --s_count;
-    FEPOH_LOG_DEBUG(s_log_system) << "HttpConnection::~HttpConnection";
 }
 
 HttpResponse::ptr HttpConnection::recvResponse(){
@@ -62,11 +60,11 @@ HttpResponse::ptr HttpConnection::recvResponse(){
             return nullptr;
         }
         offset = len - nparser;
-        // if(offset == max_head_size){
-        //     FEPOH_LOG_ERROR(s_log_system) << "offset = max_size";
-        //     close();
-        //     return nullptr;
-        // }
+        if(offset == max_head_size){
+            FEPOH_LOG_ERROR(s_log_system) << "offset = max_size";
+            close();
+            return nullptr;
+        }
 
         if((!parser->getHeadFinish())&&(total_length > max_head_size * 2)){
             FEPOH_LOG_ERROR(s_log_system) << "totol length = " << total_length 
@@ -79,6 +77,15 @@ HttpResponse::ptr HttpConnection::recvResponse(){
         }
     }while(true);
     return parser->getData();
+}
+
+HttpConnectionPool::~HttpConnectionPool(){
+    for(auto conn : m_conns){
+        if(conn){
+            delete conn;
+            conn = nullptr;
+        }
+    }
 }
 
 int HttpConnection::sendRequest(HttpRequest::ptr request){
@@ -310,7 +317,6 @@ HttpResult::ptr HttpConnectionPool::doRequest(HttpRequest::ptr request
 }
 
 HttpConnection::ptr HttpConnectionPool::getConnection(){
-    FEPOH_LOG_DEBUG(s_log_system) <<"getConnection" ;
     std::vector<HttpConnection*> invalid_conn;
     auto now_ms = fepoh::GetCurTimeMs();
     HttpConnection* ptr = nullptr;
@@ -322,7 +328,7 @@ HttpConnection::ptr HttpConnectionPool::getConnection(){
         }
         if(!conn->isConnected()){
             invalid_conn.push_back(conn);
-            m_conns.pop_front();
+            m_conns.erase(m_conns.begin());
             continue;
         }
         if(conn->m_createTime + m_maxAliveTime < now_ms){
@@ -340,6 +346,7 @@ HttpConnection::ptr HttpConnectionPool::getConnection(){
     lock.unlock();
     for(auto& i : invalid_conn){
         delete i;
+        i = nullptr;
     }
     m_totalSize -= invalid_conn.size();
     if(!ptr){
@@ -380,6 +387,7 @@ void HttpConnectionPool::ReleasePtr(HttpConnection* ptr,HttpConnectionPool* pool
             }
         }
         delete ptr;
+        ptr = nullptr;
         --pool->m_totalSize;
         return ;
     }

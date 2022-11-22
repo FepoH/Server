@@ -2,7 +2,7 @@
  * @Author: fepo_h
  * @Date: 2022-11-21 14:00:51
  * @LastEditors: fepo_h
- * @LastEditTime: 2022-11-21 15:01:07
+ * @LastEditTime: 2022-11-22 19:04:39
  * @FilePath: /fepoh/workspace/fepoh_server/src/tcp_server.cpp
  * @Description: 
  * 
@@ -14,6 +14,7 @@
 #include "tcp_server.h"
 #include "config.h"
 #include "log/log.h"
+#include "macro.h"
 
 
 namespace fepoh{
@@ -91,6 +92,7 @@ bool TcpServer::start(){
 }
 
 void TcpServer::stop(){
+    FEPOH_ASSERT(false);
     m_isStop = true;
     auto self = shared_from_this();
     m_acceptWorker->schedule([this,self](){
@@ -108,6 +110,7 @@ void TcpServer::handleClient(Socket::ptr client){
 }
 
 void TcpServer::startAccept(Socket::ptr sock){
+    std::cout << "sock = " << sock->getSocket() <<std::endl;
     while(!m_isStop){
         //注册读事件
         Socket::ptr client = sock->accept();
@@ -119,6 +122,7 @@ void TcpServer::startAccept(Socket::ptr sock){
                     << ":" << strerror(errno);
         }
     }
+    FEPOH_ASSERT(false);
 }
 
 
